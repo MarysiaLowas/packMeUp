@@ -1,4 +1,4 @@
-# Aplikacja - PackMeUp (MVP)
+* Aplikacja - PackMeUp (MVP)
 
 ### Główny problem
 Bardzo trudno spakować się na wakacje tak, żeby zabrać wszystkie niezbędne rzeczy, a jednocześnie zmieścić się w pojemności bagażu, który możemy zabrać, np. do plecaka w góry, lub do walizki do samolotu.
