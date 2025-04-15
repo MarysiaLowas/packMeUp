@@ -201,7 +201,7 @@ Kryteria akceptacji:
 - Dostępność systemu na poziomie 99.5%
 - Poprawne działanie aplikacji na wszystkich popularnych przeglądarkach (Chrome, Firefox, Safari, Edge)
 - Responsywny interfejs działający na różnych rozmiarach ekranów (desktop, tablet)
-- Średni czas ładowania strony poniżej 2 sekund
+- Średni czas ładowania strony poniżej 5 sekund
 
 ### 6.3 Kryteria wdrożeniowe
 - Aplikacja zostanie stworzona w ciągu 5 tygodni pracy po godzinach dla jednej osoby

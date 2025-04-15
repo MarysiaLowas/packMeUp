@@ -1,94 +1,146 @@
-# 10x Astro Starter
+# PackMeUp
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+A web application that helps users pack efficiently for trips by generating personalized packing lists tailored to the type of trip, number of people, planned activities, and available luggage capacity.
+
+## Table of Contents
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
+
+## Project Description
+
+PackMeUp is designed to solve common problems users face when packing for trips:
+- Difficulty remembering all necessary items
+- Optimizing limited luggage space
+- Adapting luggage contents to trip specifics (climate, activities, accommodation)
+- Packing for multiple people simultaneously (e.g., families with children)
+
+The application solves these problems through:
+- A comprehensive survey collecting all relevant trip information
+- AI-generated personalized packing lists
+- Creation and storage of custom special lists
+- Managing the packing process by marking items as packed
+
+### Target Audience
+- Families with children planning trips together
+- Backpackers needing to optimize backpack contents
+
+### Key Features
+- Survey system to collect trip information
+- Manual creation of special lists
+- AI-generated packing lists
+- Management of generated lists
+- User account system
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+### Frontend
+- Astro 5 - Fast, efficient pages and applications with minimal JavaScript
+- React 19 - For interactive components
+- TypeScript 5 - Static typing and better IDE support
+- Tailwind 4 - Utility-first CSS framework
+- Shadcn/ui - Accessible React component library
 
-## Prerequisites
+### Backend
+- FastAPI - High-performance Python web framework
+- SQLAlchemy - SQL toolkit and ORM
+- PostgreSQL - Relational database
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+### AI Integration
+- Openrouter.ai - Access to various AI models (OpenAI, Anthropic, Google)
 
-## Getting Started
+### CI/CD & Hosting
+- Github Actions - CI/CD pipelines
+- Render - Application hosting
 
-1. Clone the repository:
+## Getting Started Locally
 
+### Prerequisites
+- Node.js v22.14.0 (use a Node version manager like nvm or volta)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
+git clone git@github.com:MarysiaLowas/packMeUp.git
+cd pack-me-up
 ```
 
-2. Install dependencies:
+2. Install the correct Node.js version
+```bash
+# If using nvm
+nvm use
+```
 
+3. Install dependencies
 ```bash
 npm install
 ```
 
-3. Run the development server:
-
+4. Start the development server
 ```bash
 npm run dev
 ```
 
-4. Build for production:
-
-```bash
-npm run build
-```
+5. Open your browser and navigate to `http://localhost:3000`
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+- `npm run dev` - Start the development server
+- `npm run build` - Build the application for production
+- `npm run preview` - Preview the production build locally
+- `npm run astro` - Run Astro CLI commands
+- `npm run lint` - Run ESLint to check code quality
+- `npm run lint:fix` - Run ESLint and fix issues automatically
+- `npm run format` - Format code with Prettier
 
-## Project Structure
+## Project Scope
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+### Included in MVP
 
-## AI Development Support
+- Survey system for collecting trip information
+- Manual creation of special packing lists
+- AI-generated packing lists based on trip parameters
+- List management (adding, removing, marking items)
+- User account system with registration and login
+- Profile management
+- Password recovery
+- History of created lists
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+### Not Included in MVP
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+1. Advanced luggage packing algorithm
+2. Multimedia support (photos of items, instructional videos)
+3. List sharing between users
+4. Mobile applications (web version only)
+5. Interfaces in languages other than English
+6. Social features (comments, list ratings)
 
-### Cursor IDE
+## Project Status
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+Current version: 0.0.1 (Initial development)
 
-### GitHub Copilot
+The application is being developed with the following success criteria in mind:
 
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
+### Product Metrics
+- 75% of AI-generated lists accepted without major modifications
+- Users modify no more than 75% of generated list content
+- Average of at least 2 special lists created per active user
 
-### Windsurf
+### Technical Criteria
+- 99.5% system availability
+- Proper functioning across all popular browsers (Chrome, Firefox, Safari, Edge)
+- Responsive interface for different screen sizes (desktop, tablet)
+- Average page load time under 5 seconds
 
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+### Development Timeline
+- Application to be created within 5 weeks of part-time work for one person
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE). 
