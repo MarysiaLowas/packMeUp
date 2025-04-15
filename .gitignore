@@ -1,0 +1,16 @@
+*~
+*.pyc
+*.po
+*.mo
+*.log
+.idea
+.vscode
+.project
+.pydevproject
+.lvimrc
+.venv
+dev-env.sh
+.DS_Store
+
+# OpenOffice temporary files
+*.*#

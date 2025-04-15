@@ -1,0 +1,62 @@
+[project]
+name = "pack-me-up"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi[standard]>=0.115.12",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.5",
+]
+
+[tool.ruff]
+target-version = "py310"
+select = [
+    "E",
+    "F401",
+    "F403",
+    "F404",
+    "F406",
+    "F407",
+    "F821",
+    "F822",
+    "F823",
+    "F842",
+    "D",
+    "D404",
+    "D401",
+    "D403",
+    "D417"
+]
+ignore = [
+    "E402",
+    "E501",
+    "E713",
+    "E714",
+    "E721",
+    "E722",
+    "E731",
+    "E741",
+    # Ignore mandatory docstrings
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    # Ignore whitespace issuses around the docstring
+    "D202",
+    "D203",
+    # Allow starting multi-line docstring on both the 1st or 2nd line
+    "D212",
+    "D213",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
