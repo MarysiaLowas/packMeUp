@@ -47,8 +47,9 @@ The application solves these problems through:
 
 ### Backend
 - FastAPI - High-performance Python web framework
-- SQLAlchemy - SQL toolkit and ORM
+- SQLModel - SQL toolkit and ORM
 - PostgreSQL - Relational database
+- Alembik - database migration
 
 ### AI Integration
 - Openrouter.ai - Access to various AI models (OpenAI, Anthropic, Google)

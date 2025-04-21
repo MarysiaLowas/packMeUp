@@ -1,16 +1,16 @@
+__pycache__
 *~
 *.pyc
-*.po
-*.mo
 *.log
 .idea
 .vscode
 .project
-.pydevproject
+.pygitdevproject
 .lvimrc
 .venv
 dev-env.sh
 .DS_Store
+.cursor
 
 # OpenOffice temporary files
 *.*#

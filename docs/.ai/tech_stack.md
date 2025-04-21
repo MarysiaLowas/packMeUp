@@ -6,9 +6,10 @@ Frontend - Astro z React dla komponentów interaktywnych:
     Tailwind 4 pozwala na wygodne stylowanie aplikacji
     Shadcn/ui zapewnia bibliotekę dostępnych komponentów React, na których oprzemy UI
 
-Backend - FastAPI + SQL Alchemy:
+Backend - FastAPI + SQLModels:
 
-    Zapewnia bazę danych PostgreSQL
+    Zapewnia bazę danych PostgreSQL.
+    Do migracji użyjemy paczki Alembik.
 
 AI - Komunikacja z modelami przez usługę Openrouter.ai:
 
