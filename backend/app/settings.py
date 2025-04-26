@@ -36,4 +36,6 @@ POSTGRES_PASSWORD=""
 # DOCKER_IMAGE_BACKEND=backend
 # DOCKER_IMAGE_FRONTEND=frontend
 
-from local_settings import *
+from app.local_settings import *
+
+POSTGRES_URL=f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"

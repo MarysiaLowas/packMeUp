@@ -5,11 +5,21 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "alembic>=1.15.2",
+    "asyncpg>=0.30.0",
     "fastapi-sqlalchemy>=0.2.1",
     "fastapi[standard]>=0.115.12",
     "gunicorn>=23.0.0",
     "uvicorn>=0.34.1",
 ]
+
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
 
 [dependency-groups]
 dev = [
