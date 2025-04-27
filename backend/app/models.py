@@ -10,6 +10,8 @@ from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID, ARRAY, JSONB
 from sqlalchemy.orm import relationship, declarative_base, Mapped, mapped_column
 from sqlalchemy.sql import expression
 
+from app.crud import CrudMixin
+
 # Define the base class for declarative models
 Base = declarative_base()
 
@@ -30,7 +32,7 @@ special_list_tags_table = Table(
 )
 
 
-class User(Base):
+class User(Base, CrudMixin):
     __tablename__ = 'users'
 
     id: Mapped[uuid.UUID] = mapped_column(SQLAlchemyUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
@@ -51,7 +53,7 @@ class User(Base):
         return f"<User(id={self.id}, email='{self.email}')>"
 
 
-class Item(Base):
+class Item(Base, CrudMixin):
     __tablename__ = 'items'
     # Note: CHECK constraint 'weight >= 0' should be added in migration
     __table_args__ = (CheckConstraint('weight >= 0', name='check_item_weight_non_negative'),)
@@ -74,7 +76,7 @@ class Item(Base):
         return f"<Item(id={self.id}, name='{self.name}')>"
 
 
-class Tag(Base):
+class Tag(Base, CrudMixin):
     __tablename__ = 'tags'
 
     id: Mapped[uuid.UUID] = mapped_column(SQLAlchemyUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
@@ -90,7 +92,7 @@ class Tag(Base):
         return f"<Tag(id={self.id}, name='{self.name}')>"
 
 
-class Trip(Base):
+class Trip(Base, CrudMixin):
     __tablename__ = 'trips'
     # Note: CHECK constraints 'duration_days > 0' and 'num_adults >= 0' should be added in migration
     __table_args__ = (
@@ -126,7 +128,7 @@ class Trip(Base):
         return f"<Trip(id={self.id}, destination='{self.destination}', user_id={self.user_id})>"
 
 
-class SpecialList(Base):
+class SpecialList(Base, CrudMixin):
     __tablename__ = 'special_lists'
 
     id: Mapped[uuid.UUID] = mapped_column(SQLAlchemyUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
@@ -147,7 +149,7 @@ class SpecialList(Base):
         return f"<SpecialList(id={self.id}, name='{self.name}', user_id={self.user_id})>"
 
 
-class SpecialListItem(Base):
+class SpecialListItem(Base, CrudMixin):
     """Association object between SpecialList and Item, including quantity."""
     __tablename__ = 'special_list_items'
     # Note: CHECK constraint 'quantity > 0' should be added in migration
@@ -165,7 +167,7 @@ class SpecialListItem(Base):
         return f"<SpecialListItem(special_list_id={self.special_list_id}, item_id={self.item_id}, quantity={self.quantity})>"
 
 
-class GeneratedList(Base):
+class GeneratedList(Base, CrudMixin):
     __tablename__ = 'generated_lists'
 
     id: Mapped[uuid.UUID] = mapped_column(SQLAlchemyUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
@@ -187,7 +189,7 @@ class GeneratedList(Base):
         return f"<GeneratedList(id={self.id}, name='{self.name}', trip_id={self.trip_id})>"
 
 
-class GeneratedListItem(Base):
+class GeneratedListItem(Base, CrudMixin):
     __tablename__ = 'generated_list_items'
     # Note: CHECK constraints 'quantity > 0' and 'item_weight >= 0' should be added in migration
     __table_args__ = (
