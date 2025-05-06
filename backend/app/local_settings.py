@@ -1,0 +1,5 @@
+POSTGRES_SERVER="localhost"
+POSTGRES_PORT="5432"
+POSTGRES_DB="packmeup"
+POSTGRES_USER="marysia"
+POSTGRES_PASSWORD="marysia"

@@ -232,15 +232,20 @@ standard = [
 
 [[package]]
 name = "fastapi-sqlalchemy"
-version = "0.2.1"
-source = { registry = "https://pypi.org/simple" }
+version = "0.2.1.post1"
+source = { path = "../../../fastapi-sqlalchemy/dist/FastAPI_SQLAlchemy-0.2.1.post1-py3-none-any.whl" }
 dependencies = [
     { name = "sqlalchemy" },
     { name = "starlette" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d5/1d/c08c99b2be52d822323840a7acc8f17df5bc3963e5e3431b4cedc0838b2f/FastAPI-SQLAlchemy-0.2.1.tar.gz", hash = "sha256:7a9d44e46cbc73c3f5ee8c444f7e0bcd3d01370a878740abd4cd4d2e900ce9af", size = 4415 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0f/8d/eb73397313152277934e6d9891786affe12704ddfb5a1ae1e9a869c98c53/FastAPI_SQLAlchemy-0.2.1-py3-none-any.whl", hash = "sha256:d3bfc6d9388a73a2c3726bc6bd7764cd82debfa71c16e3991c544b9701f48d96", size = 5689 },
+    { filename = "fastapi_sqlalchemy-0.2.1.post1-py3-none-any.whl", hash = "sha256:c716656946f14337ef9de52f2e327f0e7762d052cf42eee705c5a63e47559e2e" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "sqlalchemy", specifier = ">=1.2" },
+    { name = "starlette", specifier = ">=0.12.9" },
 ]
 
 [[package]]
@@ -575,7 +580,7 @@ requires-dist = [
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "black", specifier = ">=25.1.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" },
-    { name = "fastapi-sqlalchemy", specifier = ">=0.2.1" },
+    { name = "fastapi-sqlalchemy", path = "../../../fastapi-sqlalchemy/dist/FastAPI_SQLAlchemy-0.2.1.post1-py3-none-any.whl" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "isort", specifier = ">=6.0.1" },
     { name = "mypy", specifier = ">=1.15.0" },

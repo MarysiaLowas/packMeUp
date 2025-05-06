@@ -20,15 +20,15 @@ class CrudMixin:
     @classmethod
     async def create(cls, **kwargs):
         stmt = insert(cls).values(kwargs).returning("*")
-        created = await db.session.execute(stmt)
-        await cls.notify(created.fetchall(), "create")
+        result = await db.session.execute(stmt)
+        return result.one()
 
     @classmethod
     async def merge(cls, key: list[str], /, data: list | dict):
         stmt = insert(cls).values(data)
         stmt = stmt.on_conflict_do_update(index_elements=key, set_=stmt.excluded)
-        merged = await db.session.execute(stmt.returning("*"))
-        await cls.notify(merged.fetchall(), "update")
+        result = await db.session.execute(stmt.returning("*"))
+        return result.all()
 
     @classmethod
     async def get(cls, **kwargs):
@@ -50,5 +50,5 @@ class CrudMixin:
     @classmethod
     async def delete(cls, **kwargs):
         stmt = delete(cls).filter_by(**kwargs).returning("*")
-        deleted = await db.session.execute(stmt)
-        await cls.notify(deleted.fetchall(), "delete")
+        result = await db.session.execute(stmt)
+        return result.all()

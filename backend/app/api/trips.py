@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Path, status
 from pydantic import BaseModel, Field, field_validator
 
 from app.models import Trip
@@ -29,7 +29,6 @@ class LuggageModel(BaseModel):
 class CreateTripCommand(BaseModel):
     destination: str = Field(..., min_length=1, description="Trip destination")
     start_date: Optional[date] = Field(None, description="Trip start date")
-    end_date: Optional[date] = Field(None, description="Trip end date")
     duration_days: int = Field(..., gt=0, description="Trip duration in days")
     num_adults: int = Field(..., ge=0, description="Number of adults")
     children_ages: Optional[List[int]] = Field(None, description="List of children ages")
@@ -46,14 +45,6 @@ class CreateTripCommand(BaseModel):
         if v is not None:
             if not all(isinstance(age, int) and age >= 0 for age in v):
                 raise ValueError("All children ages must be non-negative integers")
-        return v
-
-    @field_validator("end_date")
-    @classmethod
-    def validate_dates(cls, v, info):
-        if v and "start_date" in info.data and info.data["start_date"]:
-            if v < info.data["start_date"]:
-                raise ValueError("End date must be after start date")
         return v
 
     @field_validator("catering")
@@ -74,7 +65,6 @@ class TripDTO(BaseModel):
     user_id: UUID
     destination: str
     start_date: Optional[date]
-    end_date: Optional[date]
     duration_days: int
     num_adults: int
     children_ages: Optional[List[int]]
@@ -188,10 +178,10 @@ async def create_trip(
             destination=command.destination,
             duration_days=command.duration_days,
             start_date=command.start_date,
-            end_date=command.end_date,
             **trip_data
         )
     except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(
             status_code=500,
             detail="Failed to create trip"
@@ -285,6 +275,7 @@ async def list_trips(
             detail=str(e)
         )
     except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(
             status_code=500,
             detail="Failed to list trips"

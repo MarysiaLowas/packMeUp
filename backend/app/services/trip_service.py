@@ -15,7 +15,6 @@ class TripService:
         destination: str,
         duration_days: int,
         start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
         **kwargs
     ) -> Trip:
         """
@@ -33,7 +32,6 @@ class TripService:
             "user_id": user_id,
             "destination": destination,
             "start_date": start_date,
-            "end_date": end_date,
             "duration_days": duration_days,
             **kwargs
         }
@@ -81,12 +79,9 @@ class TripService:
         # Add pagination
         query = query.offset(offset).limit(limit)
         
-        # Get total count
-        count_query = select(func.count()).select_from(Trip).where(Trip.user_id == user_id)
-        
         # Execute queries
         trips = await Trip.select(user_id=user_id)
-        total = await Trip.count(user_id=user_id)
+        total = len(trips)
         
         return trips, total 
 

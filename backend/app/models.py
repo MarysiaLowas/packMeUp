@@ -138,6 +138,19 @@ class SpecialList(Base, CrudMixin):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
+    # Properties to support Pydantic DTO field names
+    @property
+    def userId(self) -> uuid.UUID:
+        return self.user_id
+
+    @property
+    def createdAt(self) -> datetime:
+        return self.created_at
+
+    @property
+    def updatedAt(self) -> datetime:
+        return self.updated_at
+
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="special_lists")
     # Many-to-Many relationship with Tags
