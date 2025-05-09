@@ -61,7 +61,7 @@ class Item(Base, CrudMixin):
     id: Mapped[uuid.UUID] = mapped_column(SQLAlchemyUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
     name: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     weight: Mapped[Optional[float]] = mapped_column(Numeric(5, 3), nullable=True)
-    dimensions: Mapped[Optional[str]] = mapped_column(String, nullable=True) # "WxHxD cm"
+    dimensions: Mapped[Optional[str]] = mapped_column(String, nullable=True) # "WxHxD"
     category: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
