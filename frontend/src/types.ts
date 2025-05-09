@@ -53,7 +53,6 @@ export interface LuggageDTO {
 export interface CreateTripCommand {
   destination: string;
   startDate?: string; // ISO date string (YYYY-MM-DD)
-  endDate?: string;   // ISO date string (YYYY-MM-DD)
   durationDays: number;
   numAdults: number;
   childrenAges?: number[];
@@ -68,7 +67,6 @@ export interface CreateTripCommand {
 export interface UpdateTripCommand {
   destination?: string;
   startDate?: string;
-  endDate?: string;
   durationDays?: number;
   numAdults?: number;
   childrenAges?: number[];
@@ -77,7 +75,7 @@ export interface UpdateTripCommand {
   transport?: string;
   activities?: string[];
   season?: string;
-  availableLuggage?: LuggageDTO;
+  availableLuggage?: LuggageDTO[];
 }
 
 export interface TripDTO {
@@ -85,7 +83,6 @@ export interface TripDTO {
   userId: string;
   destination: string;
   startDate?: string;
-  endDate?: string;
   durationDays: number;
   numAdults: number;
   childrenAges?: number[];
@@ -94,7 +91,7 @@ export interface TripDTO {
   transport?: string;
   activities?: string[];
   season?: string;
-  availableLuggage?: LuggageDTO;
+  availableLuggage?: LuggageDTO[];
   createdAt: string;
   updatedAt?: string;
 }

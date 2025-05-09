@@ -28,7 +28,7 @@ Global list of packable items.
 | `id`           | `UUID PRIMARY KEY`| `DEFAULT gen_random_uuid()` | Unique identifier for the item          |
 | `name`         | `TEXT`          | `NOT NULL, UNIQUE`          | Name of the item                        |
 | `weight`       | `NUMERIC(5,3)`  | `CHECK (weight >= 0)`       | Weight of the item in kg (optional)     |
-| `dimensions`   | `TEXT`          |                             | Dimensions "WxHxD cm" (optional)        |
+| `dimensions`   | `TEXT`          |                             | Dimensions "WxHxD" in cm (optional)        |
 | `category`     | `TEXT`          |                             | Item category (app-managed, optional) |
 | `created_at`   | `TIMESTAMPTZ`   | `NOT NULL, DEFAULT NOW()`   | Timestamp of item creation            |
 | `updated_at`   | `TIMESTAMPTZ`   | `NOT NULL, DEFAULT NOW()`   | Timestamp of last item update         |

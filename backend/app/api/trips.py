@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, Path, status
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, root_validator
 
 from app.models import Trip
 from app.services.constants import (
@@ -15,29 +15,45 @@ from app.services.trip_service import TripService
 router = APIRouter(prefix="/api/trips", tags=["trips"])
 
 class LuggageModel(BaseModel):
-    max_weight: float = Field(..., gt=0, description="Maximum weight capacity in kg")
-    dimensions: str = Field(..., description="Dimensions in format WxHxD cm")
+    max_weight: Optional[float] = Field(None, gt=0, description="Maximum weight capacity in kg (optional)", alias="maxWeight")
+    dimensions: Optional[str] = Field(None, description="Dimensions in format WxHxD (e.g. '45x35x20') (optional)", alias="dimensions")
+
+    @root_validator(pre=False, skip_on_failure=True)
+    @classmethod
+    def check_at_least_one_spec_provided(cls, values):
+        max_weight_val = values.get('max_weight')
+        dimensions_val = values.get('dimensions')
+        
+        if max_weight_val is None and dimensions_val is None:
+            raise ValueError("At least one of max_weight or dimensions must be provided for each luggage item")
+        return values
 
     @field_validator("dimensions")
     @classmethod
-    def validate_dimensions(cls, v):
+    def validate_dimensions_format(cls, v):
+        if v is None:
+            return v
         parts = v.lower().replace(" ", "").split("x")
         if len(parts) != 3 or not all(p.replace(".", "").isdigit() for p in parts):
-            raise ValueError("Dimensions must be in format WxHxD cm (e.g. '45x35x20 cm')")
+            raise ValueError("Dimensions, if provided, must be in format WxHxD (e.g. '45x35x20')")
         return v
 
+    class Config:
+        allow_population_by_field_name = True
+        validate_assignment = True
+
 class CreateTripCommand(BaseModel):
-    destination: str = Field(..., min_length=1, description="Trip destination")
-    start_date: Optional[date] = Field(None, description="Trip start date")
-    duration_days: int = Field(..., gt=0, description="Trip duration in days")
-    num_adults: int = Field(..., ge=0, description="Number of adults")
-    children_ages: Optional[List[int]] = Field(None, description="List of children ages")
+    destination: str = Field(..., min_length=3, description="Trip destination")
+    start_date: Optional[date] = Field(None, description="Trip start date", alias="startDate")
+    duration_days: int = Field(..., gt=0, description="Trip duration in days", alias="durationDays")
+    num_adults: int = Field(..., ge=1, description="Number of adults", alias="numAdults")
+    children_ages: Optional[List[int]] = Field(None, description="List of children ages", alias="childrenAges")
     accommodation: Optional[AccommodationType] = Field(None, description="Type of accommodation")
     catering: Optional[List[int]] = Field(None, description="List of catering options")
     transport: Optional[TransportType] = Field(None, description="Type of transport")
     activities: Optional[List[str]] = Field(None, description="List of planned activities")
     season: Optional[SeasonType] = Field(None, description="Season of the trip")
-    available_luggage: Optional[LuggageModel] = Field(None, description="Available luggage details")
+    available_luggage: Optional[List[LuggageModel]] = Field(None, description="Available luggage details", alias="availableLuggage")
 
     @field_validator("children_ages")
     @classmethod
@@ -60,6 +76,9 @@ class CreateTripCommand(BaseModel):
                 )
         return v
 
+    class Config:
+        allow_population_by_field_name = True
+
 class TripDTO(BaseModel):
     id: UUID
     user_id: UUID
@@ -73,7 +92,7 @@ class TripDTO(BaseModel):
     transport: Optional[TransportType]
     activities: Optional[List[str]]
     season: Optional[SeasonType]
-    available_luggage: Optional[LuggageModel]
+    available_luggage: Optional[List[LuggageModel]]
     created_at: datetime
     updated_at: Optional[datetime]
 
@@ -112,10 +131,12 @@ class ListTripsResponseDTO(BaseModel):
                         "transport": "plane",
                         "activities": ["sightseeing", "museums"],
                         "season": "summer",
-                        "available_luggage": {
-                            "max_weight": 23.0,
-                            "dimensions": "55x40x20 cm"
-                        },
+                        "available_luggage": [
+                            {
+                                "max_weight": 23.0,
+                                "dimensions": "55x40x20"
+                            }
+                        ],
                         "created_at": "2024-03-15T10:30:00Z",
                         "updated_at": "2024-03-15T10:30:00Z"
                     }
@@ -170,7 +191,7 @@ async def create_trip(
             "children_ages": command.children_ages,
             "catering": command.catering,
             "activities": command.activities,
-            "available_luggage": command.available_luggage.dict() if command.available_luggage else None
+            "available_luggage": [item.dict() for item in command.available_luggage] if command.available_luggage else None
         }
         
         return await TripService.create_trip(

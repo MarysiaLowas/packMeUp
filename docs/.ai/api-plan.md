@@ -108,7 +108,6 @@
   {
     "destination": "Paris, France",
     "startDate": "2023-12-01",
-    "endDate": "2023-12-10",
     "durationDays": 10,
     "numAdults": 2,
     "childrenAges": [5],
@@ -117,10 +116,15 @@
     "transport": "Plane",
     "activities": ["sightseeing", "museum"],
     "season": "Winter",
-    "availableLuggage": {
-      "maxWeight": 20,
-      "dimensions": "50x40x30"
-    }
+    "availableLuggage": [
+      {
+        "maxWeight": 20,
+        "dimensions": "50x40x30"
+      },
+      {
+        "maxWeight": 15
+      }
+    ]
   }
   ```
 - **Response Payload:**
@@ -130,7 +134,6 @@
     "userId": "uuid",
     "destination": "Paris, France",
     "startDate": "2023-12-01",
-    "endDate": "2023-12-10",
     "durationDays": 10,
     "numAdults": 2,
     "childrenAges": [5],
@@ -139,7 +142,10 @@
     "transport": "Plane",
     "activities": ["sightseeing", "museum"],
     "season": "Winter",
-    "availableLuggage": { "maxWeight": 20, "dimensions": "50x40x30" },
+    "availableLuggage": [
+      { "maxWeight": 20, "dimensions": "50x40x30" },
+      { "maxWeight": 15 }
+    ],
     "createdAt": "timestamp"
   }
   ```
@@ -306,8 +312,7 @@
     "isPacked": true,
     "quantity": 1
   }
-  ```
-- **Success Codes:** 200 OK
+  ```- **Success Codes:** 200 OK
 
 ### 2.5. Items and Tags (Global Resources)
 
@@ -362,3 +367,4 @@
 - **Performance:**
   - Database indexing on frequently queried fields (e.g., `user_id`, `trip_id`, etc.) supports efficient queries.
   - API responses are designed to minimize payload sizes and include pagination metadata for large result sets. 
+
