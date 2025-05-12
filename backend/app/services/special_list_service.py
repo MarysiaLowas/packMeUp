@@ -1,8 +1,8 @@
 from typing import List, Optional, Tuple
 from uuid import UUID
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import or_, desc, asc
+from sqlalchemy import select, or_, desc, asc
 import math
 
 from app.models import SpecialList, User, Item, Tag, SpecialListItem
@@ -24,6 +24,68 @@ class SpecialListError(Exception):
         self.status_code = status_code
 
 class SpecialListService:
+    """Service for managing special lists."""
+    
+    @staticmethod
+    async def get_lists(
+        list_ids: List[UUID],
+        user_id: UUID
+    ) -> List[SpecialList]:
+        """
+        Get multiple special lists by their IDs, verifying user ownership.
+        
+        Args:
+            list_ids: List of special list IDs to retrieve
+            user_id: ID of the user who should own the lists
+            
+        Returns:
+            List of found special lists with their items
+            
+        Note:
+            Only returns lists that exist AND belong to the user.
+            If a list doesn't exist or belongs to another user, it's silently skipped.
+        """
+        # Build query to get lists with their items
+        query = (
+            select(SpecialList)
+            .where(
+                SpecialList.id.in_(list_ids),
+                SpecialList.user_id == user_id
+            )
+            .options(
+                selectinload(SpecialList.items).selectinload("item")
+            )
+        )
+        
+        # Execute query and return results
+        return await SpecialList.select_many(query)
+    
+    @staticmethod
+    async def get_list(
+        list_id: UUID,
+        user_id: UUID
+    ) -> Optional[SpecialList]:
+        """
+        Get a single special list by ID, verifying user ownership.
+        
+        Args:
+            list_id: ID of the special list to retrieve
+            user_id: ID of the user who should own the list
+            
+        Returns:
+            SpecialList if found and owned by user, None otherwise
+        """
+        special_list = await SpecialList.get(
+            id=list_id,
+            include_items=True
+        )
+        
+        # Verify ownership
+        if special_list and special_list.user_id != user_id:
+            return None
+            
+        return special_list
+
     @staticmethod
     async def create_special_list(user_id: UUID, data: CreateSpecialListCommand) -> SpecialList:
         # Check user's list limit using CrudMixin's select method

@@ -48,6 +48,19 @@ class CrudMixin:
         return objs
 
     @classmethod
+    async def select_one(cls, statement):
+        """Execute a custom select query and return a single result.
+        
+        Args:
+            statement: SQLAlchemy select statement
+            
+        Returns:
+            Single result or None if no results
+        """
+        result = await db.session.execute(statement)
+        return result.unique().scalar_one_or_none()
+
+    @classmethod
     async def delete(cls, **kwargs):
         stmt = delete(cls).filter_by(**kwargs).returning("*")
         result = await db.session.execute(stmt)

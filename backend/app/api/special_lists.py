@@ -21,7 +21,7 @@ from app.schemas.special_lists import (
     SortOrder,
     SpecialListSort
 )
-from app.services.special_lists import SpecialListService, SpecialListError
+from app.services.special_list_service import SpecialListService, SpecialListError
 
 router = APIRouter(
     prefix="/api/special-lists",

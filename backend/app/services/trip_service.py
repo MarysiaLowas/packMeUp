@@ -107,3 +107,91 @@ class TripService:
             return None
             
         return trip 
+
+    @staticmethod
+    async def generate_packing_list(
+        trip: Trip,
+        user_id: UUID,
+        include_special_lists: Optional[List[UUID]] = None,
+        exclude_categories: Optional[List[str]] = None
+    ) -> 'GeneratedList':
+        """
+        Generate a packing list for a trip using AI service.
+        
+        Args:
+            trip: Trip object to generate list for
+            user_id: ID of the user requesting generation
+            include_special_lists: Optional list of special list IDs to include
+            exclude_categories: Optional list of categories to exclude
+            
+        Returns:
+            Generated packing list with items
+            
+        Raises:
+            ValueError: If trip is invalid or special lists not found
+            Exception: For AI service or database errors
+        """
+        from app.models import GeneratedList, GeneratedListItem
+        from app.services.ai_service import AIService
+        from app.services.special_list_service import SpecialListService
+        
+        # Verify trip ownership again as a safeguard
+        if trip.user_id != user_id:
+            raise ValueError("Access denied")
+            
+        # Get special lists if specified
+        special_lists = []
+        if include_special_lists:
+            special_lists = await SpecialListService.get_lists(
+                list_ids=include_special_lists,
+                user_id=user_id
+            )
+            # Verify all requested lists were found
+            if len(special_lists) != len(include_special_lists):
+                raise ValueError("One or more special lists not found")
+        
+        # Generate list name based on trip destination
+        list_name = f"Packing List for {trip.destination}"
+        
+        # Create generated list entry
+        generated_list = await GeneratedList.create(
+            user_id=user_id,
+            trip_id=trip.id,
+            name=list_name
+        )
+        
+        try:
+            # Call AI service to generate items
+            generated_items = await AIService.generate_packing_list(
+                trip=trip,
+                special_lists=special_lists,
+                exclude_categories=exclude_categories
+            )
+            
+            # Create generated list items
+            for item in generated_items:
+                await GeneratedListItem.create(
+                    generated_list_id=generated_list.id,
+                    item_id=item.get('item_id'),  # May be None for custom items
+                    quantity=item['quantity'],
+                    is_packed=False,
+                    item_name=item['name'],
+                    item_weight=item.get('weight'),
+                    item_dimensions=item.get('dimensions'),
+                    item_category=item.get('category')
+                )
+            
+            # Refresh generated list to include items
+            from sqlalchemy.orm import selectinload
+            query = (
+                select(GeneratedList)
+                .where(GeneratedList.id == generated_list.id)
+                .options(selectinload(GeneratedList.items))
+            )
+            result = await GeneratedList.select_one(query)
+            return result
+            
+        except Exception as e:
+            # Clean up generated list if something fails
+            await GeneratedList.delete(id=generated_list.id)
+            raise Exception(f"Failed to generate packing list: {str(e)}")

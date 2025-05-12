@@ -106,6 +106,35 @@ class ListTripsResponseDTO(BaseModel):
     class Config:
         from_attributes = True
 
+class GeneratePackingListCommand(BaseModel):
+    """Optional command for customizing packing list generation."""
+    include_special_lists: Optional[List[UUID]] = Field(None, description="IDs of special lists to include in generation", alias="includeSpecialLists")
+    exclude_categories: Optional[List[str]] = Field(None, description="Categories to exclude from generation", alias="excludeCategories")
+    
+    class Config:
+        allow_population_by_field_name = True
+
+class GeneratedListItemDTO(BaseModel):
+    id: UUID
+    item_name: str = Field(..., alias="itemName")
+    quantity: int
+    is_packed: bool = Field(..., alias="isPacked")
+    item_category: Optional[str] = Field(None, alias="itemCategory")
+    
+    class Config:
+        allow_population_by_field_name = True
+        from_attributes = True
+
+class GeneratePackingListResponseDTO(BaseModel):
+    id: UUID
+    name: str
+    items: List[GeneratedListItemDTO]
+    created_at: datetime = Field(..., alias="createdAt")
+    
+    class Config:
+        allow_population_by_field_name = True
+        from_attributes = True
+
 @router.post(
     "/",
     response_model=TripDTO,
@@ -372,3 +401,106 @@ async def get_trip(
             status_code=500,
             detail="Failed to get trip"
         ) from e 
+
+@router.post(
+    "/{trip_id}/generate-list",
+    response_model=GeneratePackingListResponseDTO,
+    status_code=status.HTTP_201_CREATED,
+    summary="Generate a packing list for a trip",
+    response_description="Generated packing list details",
+    responses={
+        201: {
+            "description": "Packing list generated successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "id": "123e4567-e89b-12d3-a456-426614174000",
+                        "name": "Packing List for Paris Trip",
+                        "items": [
+                            {
+                                "id": "123e4567-e89b-12d3-a456-426614174001",
+                                "itemName": "Toothbrush",
+                                "quantity": 1,
+                                "isPacked": False,
+                                "itemCategory": "Hygiene"
+                            }
+                        ],
+                        "createdAt": "2024-03-15T10:30:00Z"
+                    }
+                }
+            }
+        },
+        404: {
+            "description": "Trip not found",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Trip not found"
+                    }
+                }
+            }
+        },
+        403: {
+            "description": "Access denied",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Access denied"
+                    }
+                }
+            }
+        }
+    }
+)
+async def generate_packing_list(
+    trip_id: UUID = Path(..., description="The ID of the trip to generate a packing list for"),
+    command: Optional[GeneratePackingListCommand] = None,
+) -> GeneratePackingListResponseDTO:
+    """
+    Generate a packing list for a specific trip using AI.
+    
+    The endpoint:
+    - Validates trip existence and user ownership
+    - Uses trip details to generate a personalized packing list
+    - Optionally includes items from user's special lists
+    - Creates a new generated list with items
+    
+    The generation process considers:
+    - Trip duration and destination
+    - Number of travelers and their ages
+    - Planned activities and accommodation type
+    - Available luggage specifications
+    - Season and transport mode
+    """
+    # TODO: Add proper authentication and user handling
+    mock_user_id = UUID('12345678-1234-5678-1234-567812345678')
+    
+    try:
+        # Validate trip exists and belongs to user
+        trip = await TripService.get_trip(trip_id, user_id=mock_user_id)
+        if not trip:
+            raise HTTPException(
+                status_code=404,
+                detail="Trip not found"
+            )
+            
+        # Generate packing list using AI service
+        generated_list = await TripService.generate_packing_list(
+            trip=trip,
+            user_id=mock_user_id,
+            include_special_lists=command.include_special_lists if command else None,
+            exclude_categories=command.exclude_categories if command else None
+        )
+        
+        return generated_list
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate packing list"
+        ) from e

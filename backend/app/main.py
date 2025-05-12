@@ -10,7 +10,7 @@ origins = [
 ]
 
 
-app = FastAPI()
+app = FastAPI(debug=True)
 app.add_middleware(
     AsyncDBSessionMiddleware, 
     commit_on_exit=True,
