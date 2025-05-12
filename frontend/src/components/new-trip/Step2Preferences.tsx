@@ -33,9 +33,9 @@ const SEASON_OPTIONS = [
 
 //TODO: retrieve the options from the backend
 const CATERING_OPTIONS = [
-  { id: "0", label: "All-inclusive" },
-  { id: "1", label: "Własne wyżywienie" },
-  { id: "2", label: "Częściowe" },
+  { id: 0, label: "All inclusive" },
+  { id: 1, label: "Tylko śniadanie" },
+  { id: 2, label: "Własne wyżywienie" },
 ];
 
 export const Step2Preferences = () => {
@@ -155,20 +155,27 @@ export const Step2Preferences = () => {
         name="catering"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Posiłki (liczba dziennie)</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                min={0}
-                max={5}
-                {...field}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value);
-                  field.onChange(value ? [value] : []);
-                }}
-                value={field.value?.[0] || ""}
-              />
-            </FormControl>
+            <FormLabel>Opcje wyżywienia</FormLabel>
+            <div className="space-y-2">
+              {CATERING_OPTIONS.map((option) => (
+                <div key={option.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={(field.value || []).includes(option.id)}
+                    onCheckedChange={(checked) => {
+                      const currentValue = field.value || [];
+                      if (checked) {
+                        field.onChange([...currentValue, option.id]);
+                      } else {
+                        field.onChange(currentValue.filter((id) => id !== option.id));
+                      }
+                    }}
+                  />
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    {option.label}
+                  </label>
+                </div>
+              ))}
+            </div>
           </FormItem>
         )}
       />

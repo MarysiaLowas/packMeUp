@@ -46,8 +46,8 @@ export interface UpdateUserProfileCommand {
 
 // Trip-related DTOs and Commands
 export interface LuggageDTO {
-  maxWeight: number;
-  dimensions: string;
+  maxWeight?: number;
+  dimensions?: string;
 }
 
 export interface CreateTripCommand {
@@ -57,11 +57,11 @@ export interface CreateTripCommand {
   numAdults: number;
   childrenAges?: number[];
   accommodation?: string;
-  catering?: number[];
+  catering?: number[]; // Array of catering options: 0 = All inclusive, 1 = Breakfast only, 2 = Own cooking
   transport?: string;
   activities?: string[];
   season?: string;
-  availableLuggage?: LuggageDTO;
+  availableLuggage?: LuggageDTO[];
 }
 
 export interface UpdateTripCommand {

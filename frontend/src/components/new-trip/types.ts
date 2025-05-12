@@ -1,6 +1,6 @@
-import type { CreateTripCommand } from "@/types";
+import type { CreateTripCommand, LuggageDTO } from "@/types";
 
-export type CreateTripFormShape = {
+export interface CreateTripFormShape {
   destination: string;
   startDate?: string;
   durationDays: number;
@@ -11,8 +11,10 @@ export type CreateTripFormShape = {
   transport?: string;
   activities?: string[];
   season?: string;
-  availableLuggage?: Array<{
+  availableLuggage?: {
     maxWeight?: number;
-    dimensions?: string;
-  }>;
-}; 
+    width?: number;
+    height?: number;
+    depth?: number;
+  }[];
+} 

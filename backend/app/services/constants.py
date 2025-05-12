@@ -26,6 +26,6 @@ class CateringType(int, Enum):
 
 CATERING_OPTIONS: List[Tuple[int, str]] = [
     (CateringType.FULL.value, "All inclusive"),
-    (CateringType.BREAKFAST.value, "Breakfast only"),
-    (CateringType.FULL_OWN.value, "Own cooking")
+    (CateringType.BREAKFAST.value, "Tylko śniadanie"),
+    (CateringType.FULL_OWN.value, "Własne wyżywienie")
 ] 

@@ -7,7 +7,9 @@ import type { CreateTripFormShape } from "./types";
 
 type LuggageItem = {
   maxWeight?: number;
-  dimensions?: string;
+  width?: number;
+  height?: number;
+  depth?: number;
 };
 
 export const Step3Luggage = () => {
@@ -17,7 +19,7 @@ export const Step3Luggage = () => {
     const currentLuggage = form.getValues("availableLuggage") || [];
     form.setValue("availableLuggage", [
       ...currentLuggage,
-      { maxWeight: undefined, dimensions: "" },
+      { maxWeight: undefined, width: undefined, height: undefined, depth: undefined },
     ]);
   };
 
@@ -64,28 +66,76 @@ export const Step3Luggage = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name={`availableLuggage.${index}.dimensions`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Wymiary</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="np. 55x40x20"
-                      {...field}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        // Allow only numbers, 'x' and whitespace
-                        if (!value || value.match(/^[\dx\s]*$/)) {
-                          field.onChange(value);
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name={`availableLuggage.${index}.width`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Szerokość (cm)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        step={1}
+                        placeholder="np. 55"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
                         }
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`availableLuggage.${index}.height`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Wysokość (cm)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        step={1}
+                        placeholder="np. 40"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                        }
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`availableLuggage.${index}.depth`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Głębokość (cm)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        step={1}
+                        placeholder="np. 20"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                        }
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <Button
               type="button"
