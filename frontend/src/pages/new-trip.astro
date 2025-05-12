@@ -1,0 +1,10 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { NewTripPage } from '@/components/new-trip/NewTripPage';
+---
+
+<Layout title="Zaplanuj nową podróż - PackMeUp">
+  <main class="container mx-auto px-4 py-8">
+    <NewTripPage client:load />
+  </main>
+</Layout> 
