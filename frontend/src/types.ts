@@ -107,15 +107,19 @@ export interface GeneratedListItemDTO {
   itemName: string;
   quantity: number;
   isPacked: boolean;
-  createdAt?: string;
+  itemCategory?: string;
+  itemWeight?: number;
+  itemDimensions?: string;
+  createdAt: string;
   updatedAt?: string;
 }
 
 export interface GeneratePackingListResponseDTO {
-  generatedListId: string;
+  id: string;
   name: string;
   items: GeneratedListItemDTO[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface GeneratePackingListCommand {

@@ -3,8 +3,12 @@ from typing import List, Optional, Tuple
 from uuid import UUID
 
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 
-from app.models import Trip
+from app.models import Trip, GeneratedList, GeneratedListItem
+from app.services.ai_service import AIService
+from app.services.special_list_service import SpecialListService
+from app.api.dto import GeneratePackingListResponseDTO
 
 class TripService:
     ALLOWED_SORT_FIELDS = {'created_at', 'destination', 'start_date', 'duration_days'}
@@ -114,7 +118,7 @@ class TripService:
         user_id: UUID,
         include_special_lists: Optional[List[UUID]] = None,
         exclude_categories: Optional[List[str]] = None
-    ) -> 'GeneratedList':
+    ) -> 'GeneratePackingListResponseDTO':
         """
         Generate a packing list for a trip using AI service.
         
@@ -131,10 +135,6 @@ class TripService:
             ValueError: If trip is invalid or special lists not found
             Exception: For AI service or database errors
         """
-        from app.models import GeneratedList, GeneratedListItem
-        from app.services.ai_service import AIService
-        from app.services.special_list_service import SpecialListService
-        
         # Verify trip ownership again as a safeguard
         if trip.user_id != user_id:
             raise ValueError("Access denied")
@@ -146,7 +146,6 @@ class TripService:
                 list_ids=include_special_lists,
                 user_id=user_id
             )
-            # Verify all requested lists were found
             if len(special_lists) != len(include_special_lists):
                 raise ValueError("One or more special lists not found")
         
@@ -173,23 +172,26 @@ class TripService:
                 await GeneratedListItem.create(
                     generated_list_id=generated_list.id,
                     item_id=item.get('item_id'),  # May be None for custom items
-                    quantity=item['quantity'],
-                    is_packed=False,
                     item_name=item['name'],
-                    item_weight=item.get('weight'),
-                    item_dimensions=item.get('dimensions'),
-                    item_category=item.get('category')
+                    quantity=item.get('quantity', 1),
+                    is_packed=False,
+                    item_category=item.get('category'),
+                    item_weight=float(item['weight']) if item.get('weight') is not None else None,
+                    item_dimensions=item.get('dimensions')
                 )
             
-            # Refresh generated list to include items
-            from sqlalchemy.orm import selectinload
+            # Fetch the complete list with items
             query = (
                 select(GeneratedList)
                 .where(GeneratedList.id == generated_list.id)
                 .options(selectinload(GeneratedList.items))
             )
             result = await GeneratedList.select_one(query)
-            return result
+            if not result:
+                raise Exception("Failed to load generated list with items")
+            
+            # Convert to DTO and return
+            return GeneratePackingListResponseDTO.from_orm(result)
             
         except Exception as e:
             # Clean up generated list if something fails

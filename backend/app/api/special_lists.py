@@ -33,7 +33,7 @@ class SpecialListError(Exception):
         self.message = message
         self.status_code = status_code
 
-@router.post("/", response_model=SpecialListDTO, status_code=status.HTTP_201_CREATED, summary="Create a new special list", response_description="Created special list details")
+@router.post("", response_model=SpecialListDTO, status_code=status.HTTP_201_CREATED, summary="Create a new special list", response_description="Created special list details")
 async def create_special_list(
     data: CreateSpecialListCommand
 ) -> SpecialListDTO:

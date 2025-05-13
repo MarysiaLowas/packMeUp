@@ -121,7 +121,7 @@ export const NewTripPage = () => {
       console.log('List generated:', generatedList);
 
       // Redirect to the generated list
-      window.location.href = `/trips/${trip.id}/lists/${generatedList.generatedListId}`;
+      window.location.href = `/trips/${trip.id}/lists/${generatedList.id}`;
 
     } catch (error) {
       console.error('Error in form submission:', error);

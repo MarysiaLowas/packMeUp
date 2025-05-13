@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, Path, status
+from fastapi import APIRouter, HTTPException, Query, Path, status, Body
 from pydantic import BaseModel, Field, field_validator, root_validator
 
 from app.models import Trip
@@ -11,6 +11,10 @@ from app.services.constants import (
     CateringType, CATERING_OPTIONS
 )
 from app.services.trip_service import TripService
+from app.api.dto import (
+    LuggageModel, GeneratedListItemDTO,
+    GeneratePackingListResponseDTO
+)
 
 router = APIRouter(prefix="/api/trips", tags=["trips"])
 
@@ -120,6 +124,10 @@ class GeneratedListItemDTO(BaseModel):
     quantity: int
     is_packed: bool = Field(..., alias="isPacked")
     item_category: Optional[str] = Field(None, alias="itemCategory")
+    item_weight: Optional[float] = Field(None, alias="itemWeight")
+    item_dimensions: Optional[str] = Field(None, alias="itemDimensions")
+    created_at: datetime = Field(..., alias="createdAt")
+    updated_at: Optional[datetime] = Field(None, alias="updatedAt")
     
     class Config:
         allow_population_by_field_name = True
@@ -130,13 +138,14 @@ class GeneratePackingListResponseDTO(BaseModel):
     name: str
     items: List[GeneratedListItemDTO]
     created_at: datetime = Field(..., alias="createdAt")
+    updated_at: Optional[datetime] = Field(None, alias="updatedAt")
     
     class Config:
         allow_population_by_field_name = True
         from_attributes = True
 
 @router.post(
-    "/",
+    "",
     response_model=TripDTO,
     status_code=status.HTTP_201_CREATED,
     summary="Create a new trip",
@@ -485,14 +494,12 @@ async def generate_packing_list(
             )
             
         # Generate packing list using AI service
-        generated_list = await TripService.generate_packing_list(
+        return await TripService.generate_packing_list(
             trip=trip,
             user_id=mock_user_id,
             include_special_lists=command.include_special_lists if command else None,
             exclude_categories=command.exclude_categories if command else None
         )
-        
-        return generated_list
     except ValueError as e:
         raise HTTPException(
             status_code=400,
@@ -502,5 +509,168 @@ async def generate_packing_list(
         print(f"Error: {e}")
         raise HTTPException(
             status_code=500,
-            detail="Failed to generate packing list"
+            detail=f"Failed to generate packing list: {str(e)}"
+        ) from e
+
+@router.get(
+    "/{trip_id}/lists/{list_id}",
+    response_model=GeneratePackingListResponseDTO,
+    summary="Get a generated packing list",
+    response_description="Generated packing list details",
+    responses={
+        200: {
+            "description": "Packing list retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "id": "123e4567-e89b-12d3-a456-426614174000",
+                        "name": "Packing List for Paris Trip",
+                        "items": [
+                            {
+                                "id": "123e4567-e89b-12d3-a456-426614174001",
+                                "itemName": "Toothbrush",
+                                "quantity": 1,
+                                "isPacked": False,
+                                "itemCategory": "Hygiene"
+                            }
+                        ],
+                        "createdAt": "2024-03-15T10:30:00Z"
+                    }
+                }
+            }
+        },
+        404: {
+            "description": "List not found",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "List not found"
+                    }
+                }
+            }
+        }
+    }
+)
+async def get_generated_list(
+    trip_id: UUID = Path(..., description="The ID of the trip"),
+    list_id: UUID = Path(..., description="The ID of the generated list")
+) -> GeneratePackingListResponseDTO:
+    """
+    Retrieve a generated packing list with all its items.
+    
+    The endpoint returns:
+    - List details (name, creation date)
+    - All items with their details and packed status
+    - Items are grouped by category
+    """
+    # TODO: Add proper authentication and user handling
+    mock_user_id = UUID('12345678-1234-5678-1234-567812345678')
+    
+    try:
+        # Get the trip first to verify ownership
+        trip = await TripService.get_trip(trip_id, user_id=mock_user_id)
+        if not trip:
+            raise HTTPException(
+                status_code=404,
+                detail="Trip not found"
+            )
+        
+        # Get the generated list with items
+        query = (
+            select(GeneratedList)
+            .where(GeneratedList.id == list_id)
+            .where(GeneratedList.trip_id == trip_id)
+            .options(selectinload(GeneratedList.items))
+        )
+        result = await GeneratedList.select_one(query)
+        if not result:
+            raise HTTPException(
+                status_code=404,
+                detail="List not found"
+            )
+            
+        return GeneratePackingListResponseDTO.from_orm(result)
+            
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to get packing list"
+        ) from e
+
+class UpdateListItemCommand(BaseModel):
+    is_packed: bool = Field(..., alias="isPacked")
+
+    class Config:
+        allow_population_by_field_name = True
+
+@router.patch(
+    "/{trip_id}/lists/{list_id}/items/{item_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Update a packing list item",
+    response_description="Item updated successfully",
+    responses={
+        200: {
+            "description": "Item updated successfully"
+        },
+        404: {
+            "description": "Item not found",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Item not found"
+                    }
+                }
+            }
+        }
+    }
+)
+async def update_list_item(
+    trip_id: UUID = Path(..., description="The ID of the trip"),
+    list_id: UUID = Path(..., description="The ID of the generated list"),
+    item_id: UUID = Path(..., description="The ID of the item to update"),
+    command: UpdateListItemCommand = Body(..., description="Update command")
+) -> None:
+    """
+    Update a packing list item's status.
+    
+    Currently supports:
+    - Marking items as packed/unpacked
+    """
+    # TODO: Add proper authentication and user handling
+    mock_user_id = UUID('12345678-1234-5678-1234-567812345678')
+    
+    try:
+        # Get the trip first to verify ownership
+        trip = await TripService.get_trip(trip_id, user_id=mock_user_id)
+        if not trip:
+            raise HTTPException(
+                status_code=404,
+                detail="Trip not found"
+            )
+        
+        # Get the item and verify it belongs to the correct list
+        item = await GeneratedListItem.get(id=item_id)
+        if not item or item.generated_list_id != list_id:
+            raise HTTPException(
+                status_code=404,
+                detail="Item not found"
+            )
+            
+        # Update the item
+        await item.update(is_packed=command.is_packed)
+            
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update item"
         ) from e

@@ -191,6 +191,23 @@ class GeneratedList(Base, CrudMixin):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
+    # Properties to support Pydantic DTO field names
+    @property
+    def userId(self) -> uuid.UUID:
+        return self.user_id
+
+    @property
+    def tripId(self) -> uuid.UUID:
+        return self.trip_id
+
+    @property
+    def createdAt(self) -> datetime:
+        return self.created_at
+
+    @property
+    def updatedAt(self) -> datetime:
+        return self.updated_at
+
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="generated_lists")
     # One-to-One relationship back to Trip
@@ -199,7 +216,7 @@ class GeneratedList(Base, CrudMixin):
     items: Mapped[List["GeneratedListItem"]] = relationship("GeneratedListItem", back_populates="generated_list", cascade="all, delete-orphan", order_by="GeneratedListItem.created_at")
 
     def __repr__(self):
-        return f"<GeneratedList(id={self.id}, name='{self.name}', trip_id={self.trip_id})>"
+        return f"<GeneratedList(id={self.id}, name='{self.name}', user_id={self.user_id})>"
 
 
 class GeneratedListItem(Base, CrudMixin):
@@ -223,6 +240,43 @@ class GeneratedListItem(Base, CrudMixin):
     item_category: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+
+    # Properties to support Pydantic DTO field names
+    @property
+    def generatedListId(self) -> uuid.UUID:
+        return self.generated_list_id
+
+    @property
+    def itemId(self) -> Optional[uuid.UUID]:
+        return self.item_id
+
+    @property
+    def itemName(self) -> str:
+        return self.item_name
+
+    @property
+    def isPacked(self) -> bool:
+        return self.is_packed
+
+    @property
+    def itemWeight(self) -> Optional[float]:
+        return self.item_weight
+
+    @property
+    def itemDimensions(self) -> Optional[str]:
+        return self.item_dimensions
+
+    @property
+    def itemCategory(self) -> Optional[str]:
+        return self.item_category
+
+    @property
+    def createdAt(self) -> datetime:
+        return self.created_at
+
+    @property
+    def updatedAt(self) -> datetime:
+        return self.updated_at
 
     # Relationships
     generated_list: Mapped["GeneratedList"] = relationship("GeneratedList", back_populates="items")
