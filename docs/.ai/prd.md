@@ -54,7 +54,7 @@ Aplikacja PackMeUp rozwiązuje te problemy przez:
 - Przechowywanie wielu różnych list jednocześnie
 
 ### 3.5 System kont użytkowników
-- Rejestracja przy użyciu emaila, imienia, wieku i hasła
+- Rejestracja przy użyciu emaila, imienia i hasła
 - Logowanie do konta
 - Zarządzanie profilem użytkownika
 - Zgodność z wymogami RODO
@@ -78,7 +78,7 @@ Aplikacja będzie bazować na istniejących modelach AI do generowania list, bez
 Jako nowy użytkownik, chcę zarejestrować się w systemie, aby móc korzystać z pełnej funkcjonalności aplikacji.
 
 Kryteria akceptacji:
-- Użytkownik może zarejestrować się podając email, imię, wiek i hasło
+- Użytkownik może zarejestrować się podając email, imię i hasło
 - System weryfikuje unikalność adresu email
 - System wymaga silnego hasła (minimum 8 znaków, duże i małe litery, cyfra)
 - Po rejestracji użytkownik otrzymuje email potwierdzający
@@ -94,7 +94,7 @@ Kryteria akceptacji:
 - Użytkownik po zalogowaniu ma dostęp do swoich zapisanych list
 
 ### US-003: Wypełnianie ankiety o planowanym wyjeździe
-Jako użytkownik, chcę wypełnić ankietę z informacjami o moim planowanym wyjeździe, aby otrzymać spersonalizowaną listę rzeczy do zabrania.
+Jako zalogowany użytkownik, chcę wypełnić ankietę z informacjami o moim planowanym wyjeździe, aby otrzymać spersonalizowaną listę rzeczy do zabrania.
 
 Kryteria akceptacji:
 - Formularz zawiera pola dotyczące celu podróży, liczby osób, zakwaterowania, transportu i aktywności
@@ -104,7 +104,7 @@ Kryteria akceptacji:
 - Wszystkie pola wymagane są oznaczone i nie można wysłać ankiety bez ich wypełnienia
 
 ### US-004: Tworzenie listy specjalnej
-Jako użytkownik, chcę stworzyć własną listę specjalną dla konkretnej aktywności, aby wykorzystać ją podczas generowania głównej listy rzeczy do zabrania.
+Jako zalogowany użytkownik, chcę stworzyć własną listę specjalną dla konkretnej aktywności, aby wykorzystać ją podczas generowania głównej listy rzeczy do zabrania.
 
 Kryteria akceptacji:
 - Użytkownik może nadać nazwę liście specjalnej
@@ -114,7 +114,7 @@ Kryteria akceptacji:
 - Użytkownik może przeglądać wszystkie swoje listy specjalne
 
 ### US-005: Generowanie listy rzeczy do zabrania
-Jako użytkownik, chcę wygenerować listę rzeczy do zabrania na podstawie wypełnionej ankiety, aby efektywnie się spakować.
+Jako zalogowany użytkownik, chcę wygenerować listę rzeczy do zabrania na podstawie wypełnionej ankiety, aby efektywnie się spakować.
 
 Kryteria akceptacji:
 - System generuje listę przedmiotów na podstawie danych z ankiety
@@ -123,7 +123,7 @@ Kryteria akceptacji:
 - System uwzględnia listy specjalne użytkownika podczas generowania
 
 ### US-006: Modyfikacja wygenerowanej listy
-Jako użytkownik, chcę modyfikować wygenerowaną listę rzeczy do zabrania, aby dostosować ją do moich indywidualnych potrzeb.
+Jako zalogowany użytkownik, chcę modyfikować wygenerowaną listę rzeczy do zabrania, aby dostosować ją do moich indywidualnych potrzeb.
 
 Kryteria akceptacji:
 - Użytkownik może dodawać nowe przedmioty do listy
@@ -132,7 +132,7 @@ Kryteria akceptacji:
 - Zmiany są automatycznie zapisywane
 
 ### US-007: Oznaczanie spakowanych przedmiotów
-Jako użytkownik, chcę oznaczać przedmioty jako już spakowane, aby śledzić postęp pakowania.
+Jako zalogowany użytkownik, chcę oznaczać przedmioty jako już spakowane, aby śledzić postęp pakowania.
 
 Kryteria akceptacji:
 - Użytkownik może oznaczyć każdy przedmiot na liście jako spakowany
@@ -142,7 +142,7 @@ Kryteria akceptacji:
 - Użytkownik może cofnąć oznaczenie przedmiotu jako spakowany
 
 ### US-008: Zapisywanie listy rzeczy do zabrania
-Jako użytkownik, chcę zapisać wygenerowaną listę rzeczy do zabrania, aby móc do niej wrócić później.
+Jako zalogowany użytkownik, chcę zapisać wygenerowaną listę rzeczy do zabrania, aby móc do niej wrócić później.
 
 Kryteria akceptacji:
 - Użytkownik może zapisać listę pod własną nazwą
@@ -152,17 +152,17 @@ Kryteria akceptacji:
 - Użytkownik może usuwać zapisane listy
 
 ### US-009: Zarządzanie profilem użytkownika
-Jako użytkownik, chcę zarządzać moim profilem, aby aktualizować moje dane osobowe i preferencje.
+Jako zalogowany użytkownik, chcę zarządzać moim profilem, aby aktualizować moje dane osobowe i preferencje.
 
 Kryteria akceptacji:
-- Użytkownik może zmienić imię, wiek i hasło
+- Użytkownik może zmienić imię i hasło
 - Użytkownik może zaktualizować adres email z weryfikacją
 - Użytkownik może usunąć swoje konto
 - System potwierdza wszystkie istotne zmiany w profilu
 - Użytkownik ma dostęp do informacji o przetwarzaniu swoich danych osobowych
 
 ### US-010: Przeglądanie historii list
-Jako użytkownik, chcę przeglądać historię moich list rzeczy do zabrania, aby móc wykorzystać je ponownie przy podobnych wyjazdach.
+Jako zalogowany użytkownik, chcę przeglądać historię moich list rzeczy do zabrania, aby móc wykorzystać je ponownie przy podobnych wyjazdach.
 
 Kryteria akceptacji:
 - Użytkownik widzi listę wszystkich utworzonych list z datami
