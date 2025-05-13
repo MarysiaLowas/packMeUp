@@ -8,10 +8,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Link } from '@/components/ui/link';
+import { AuthService } from '@/lib/services/auth.service';
+import type { ApiError } from '@/types/auth';
 
 const loginFormSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
-  password: z.string().min(1, 'Hasło jest wymagane'),
+  password: z.string()
+    .min(8, 'Hasło musi mieć minimum 8 znaków')
+    .regex(/[A-Z]/, 'Hasło musi zawierać przynajmniej jedną wielką literę')
+    .regex(/[0-9]/, 'Hasło musi zawierać przynajmniej jedną cyfrę'),
 });
 
 type LoginFormShape = z.infer<typeof loginFormSchema>;
@@ -19,6 +24,7 @@ type LoginFormShape = z.infer<typeof loginFormSchema>;
 export const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const authService = AuthService.getInstance();
 
   const form = useForm<LoginFormShape>({
     resolver: zodResolver(loginFormSchema),
@@ -31,8 +37,15 @@ export const LoginForm = () => {
   const onSubmit = async (data: LoginFormShape) => {
     setIsLoading(true);
     setApiError(null);
-    // Backend integration will be implemented later
-    setIsLoading(false);
+    
+    try {
+      await authService.login(data);
+      window.location.href = '/dashboard';
+    } catch (error) {
+      setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas logowania');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

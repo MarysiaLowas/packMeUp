@@ -1,0 +1,26 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { Button } from "@/components/ui/button";
+---
+
+<Layout title="Dashboard - PackMeUp">
+  <main class="container mx-auto px-4 py-16">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-bold">
+        Twoje podróże
+      </h1>
+      <a href="/new-trip">
+        <Button client:load>
+          Nowa podróż
+        </Button>
+      </a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Tu będą wyświetlane karty z podróżami -->
+      <div class="p-8 border rounded-lg text-center text-muted-foreground">
+        Nie masz jeszcze żadnych podróży. 
+        Kliknij "Nowa podróż" aby rozpocząć planowanie!
+      </div>
+    </div>
+  </main>
+</Layout> 

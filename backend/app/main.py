@@ -6,6 +6,7 @@ from app import settings  # an object to provide global access to a database ses
 from app.api.trips import router as trips_router
 from app.api.special_lists import router as special_lists_router
 from app.api.generated_lists import router as generated_lists_router
+from app.api import auth
 
 # Configure root logger
 logging.basicConfig(
@@ -55,7 +56,8 @@ app.add_middleware(
 app.include_router(trips_router)
 app.include_router(special_lists_router)
 app.include_router(generated_lists_router)
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 
 @app.get("")
 async def root():
-    return {"message": "Pack me up"}
+    return {"message": "PackMeUp API"}
