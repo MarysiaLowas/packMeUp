@@ -12,5 +12,8 @@ dev-env.sh
 .DS_Store
 .cursor
 
+frontend/node_modules/
+backend/pack_me_up.egg-info/
+
 # OpenOffice temporary files
 *.*#
