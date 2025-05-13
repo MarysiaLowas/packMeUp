@@ -45,20 +45,35 @@ class SpecialListService:
             Only returns lists that exist AND belong to the user.
             If a list doesn't exist or belongs to another user, it's silently skipped.
         """
-        # Build query to get lists with their items
-        query = (
-            select(SpecialList)
-            .where(
-                SpecialList.id.in_(list_ids),
-                SpecialList.user_id == user_id
+        try:
+            # Build query to get lists with their items
+            query = (
+                select(SpecialList)
+                .where(
+                    SpecialList.id.in_(list_ids),
+                    SpecialList.user_id == user_id
+                )
+                .options(
+                    selectinload(SpecialList.item_associations).selectinload(SpecialListItem.item)
+                )
             )
-            .options(
-                selectinload(SpecialList.items).selectinload("item")
-            )
-        )
-        
-        # Execute query and return results
-        return await SpecialList.select_many(query)
+            
+            # Execute query using standard select
+            results = await SpecialList.select(id=list_ids[0])  # Get first list
+            if not results:
+                return []
+                
+            special_lists = []
+            for list_id in list_ids:
+                list_result = await SpecialList.select(id=list_id)
+                if list_result and list_result[0].user_id == user_id:
+                    special_lists.append(list_result[0])
+            
+            return special_lists
+            
+        except Exception as e:
+            print(f"Error fetching special lists: {e}")
+            return []
     
     @staticmethod
     async def get_list(

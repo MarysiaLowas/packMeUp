@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_sqlalchemy import AsyncDBSessionMiddleware
@@ -5,6 +6,18 @@ from app import settings  # an object to provide global access to a database ses
 from app.api.trips import router as trips_router
 from app.api.special_lists import router as special_lists_router
 from app.api.generated_lists import router as generated_lists_router
+
+# Configure root logger
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
+
+# Create logger for this module
+logger = logging.getLogger(__name__)
 
 origins = [
     "http://localhost:3000",
