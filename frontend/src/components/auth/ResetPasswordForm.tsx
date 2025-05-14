@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Link } from '@/components/ui/link';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const resetPasswordFormSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
@@ -16,9 +17,9 @@ const resetPasswordFormSchema = z.object({
 type ResetPasswordFormShape = z.infer<typeof resetPasswordFormSchema>;
 
 export const ResetPasswordForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const { resetPassword, isLoading } = useAuth();
 
   const form = useForm<ResetPasswordFormShape>({
     resolver: zodResolver(resetPasswordFormSchema),
@@ -28,36 +29,23 @@ export const ResetPasswordForm = () => {
   });
 
   const onSubmit = async (data: ResetPasswordFormShape) => {
-    setIsLoading(true);
     setApiError(null);
-    // Backend integration will be implemented later
-    setIsSuccess(true);
-    setIsLoading(false);
+    setIsSuccess(false);
+    
+    try {
+      await resetPassword(data.email);
+      setIsSuccess(true);
+      form.reset();
+    } catch (error) {
+      setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas resetowania hasła');
+    }
   };
-
-  if (isSuccess) {
-    return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Sprawdź swoją skrzynkę</CardTitle>
-          <CardDescription className="text-center mt-2">
-            Wysłaliśmy instrukcje resetowania hasła na podany adres email.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-          <Link href="/login" className="hover:text-primary">
-            Powrót do logowania
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Resetowanie hasła</CardTitle>
-        <CardDescription className="text-center mt-2">
+        <CardTitle className="text-2xl font-bold text-center">Reset hasła</CardTitle>
+        <CardDescription className="text-center">
           Wprowadź swój adres email, a wyślemy Ci instrukcje resetowania hasła.
         </CardDescription>
       </CardHeader>
@@ -88,6 +76,14 @@ export const ResetPasswordForm = () => {
               </Alert>
             )}
 
+            {isSuccess && (
+              <Alert>
+                <AlertDescription>
+                  Instrukcje resetowania hasła zostały wysłane na podany adres email.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className="space-y-4">
               <Button 
                 type="submit" 
@@ -98,8 +94,9 @@ export const ResetPasswordForm = () => {
               </Button>
 
               <div className="text-center text-sm text-muted-foreground">
+                Pamiętasz hasło?{' '}
                 <Link href="/login" className="hover:text-primary">
-                  Powrót do logowania
+                  Zaloguj się
                 </Link>
               </div>
             </div>

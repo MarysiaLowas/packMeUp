@@ -84,7 +84,7 @@ class AuthService:
             logger.debug("Creating access token")
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             access_token = AuthService.create_access_token(
-                data={"sub": str(user.id), "email": user.email},
+                data={"sub": str(user.id), "email": user.email, "first_name": user.first_name},
                 expires_delta=access_token_expires
             )
             logger.debug("Access token created successfully")
@@ -116,26 +116,38 @@ class AuthService:
     @staticmethod
     async def refresh_token(refresh_token: str) -> Token:
         try:
+            logger.info("Attempting to refresh token")
             payload = jwt.decode(refresh_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
             user_id = UUID(payload.get("sub"))
+            logger.debug("Decoded refresh token for user_id: %s", user_id)
             
             # Verify session exists and is valid
             session = await UserService.get_active_session(user_id)
-            if not session or session.refresh_token != refresh_token:
+            if not session:
+                logger.warning("No active session found for user_id: %s", user_id)
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid refresh token",
+                    detail="Invalid refresh token - no active session",
+                )
+            
+            if session.refresh_token != refresh_token:
+                logger.warning("Refresh token mismatch for user_id: %s", user_id)
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid refresh token - token mismatch",
                 )
             
             # Get user
             user = await User.get(id=user_id)
+            logger.info("Found user for refresh: %s", user.email)
             
             # Create new access token
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             access_token = AuthService.create_access_token(
-                data={"sub": str(user.id), "email": user.email},
+                data={"sub": str(user.id), "email": user.email, "first_name": user.first_name},
                 expires_delta=access_token_expires
             )
+            logger.info("Successfully refreshed token for user: %s", user.email)
             
             return Token(
                 access_token=access_token,
@@ -144,10 +156,17 @@ class AuthService:
                 refresh_token=refresh_token
             )
             
-        except JWTError:
+        except JWTError as e:
+            logger.error("JWT decode error during refresh: %s", str(e))
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid refresh token",
+                detail="Invalid refresh token - JWT error",
+            )
+        except Exception as e:
+            logger.error("Unexpected error during token refresh: %s", str(e))
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token - unexpected error",
             )
 
     @staticmethod

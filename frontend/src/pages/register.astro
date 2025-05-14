@@ -1,10 +1,11 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
+import GuestLayout from '@/layouts/GuestLayout.astro';
 import { RegisterForm } from '@/components/auth/RegisterForm';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 ---
 
-<BaseLayout title="Rejestracja">
-  <div class="max-w-md mx-auto">
+<GuestLayout title="Rejestracja">
+  <ProtectedRoute client:load requireAuth={false}>
     <RegisterForm client:load />
-  </div>
-</BaseLayout> 
+  </ProtectedRoute>
+</GuestLayout> 

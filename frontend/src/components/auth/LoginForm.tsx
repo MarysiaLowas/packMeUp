@@ -33,12 +33,15 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (data: LoginFormShape) => {
+    console.log('🎯 onSubmit called with data:', data);
     setApiError(null);
     
     try {
+      console.log('👉 Calling login function');
       await login(data);
-      // Przekierowanie nastąpi automatycznie przez AuthService
+      console.log('✅ Login successful');
     } catch (error) {
+      console.error('❌ Login failed:', error);
       setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas logowania');
     }
   };
@@ -95,7 +98,7 @@ export const LoginForm = () => {
 
             <div className="space-y-4">
               <Button 
-                type="submit" 
+                type="submit"
                 className="w-full" 
                 disabled={isLoading}
               >

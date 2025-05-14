@@ -7,6 +7,7 @@ from app.api.trips import router as trips_router
 from app.api.special_lists import router as special_lists_router
 from app.api.generated_lists import router as generated_lists_router
 from app.api import auth
+from app.config import CORS_ORIGINS
 
 # Configure root logger
 logging.basicConfig(
@@ -20,14 +21,8 @@ logging.basicConfig(
 # Create logger for this module
 logger = logging.getLogger(__name__)
 
-origins = [
-    "http://localhost:3000",
-    "http://localhost:4321",  # Astro's default port
-    "http://127.0.0.1:4321",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:4322",
-    "http://127.0.0.1:4310",
-]
+# Development settings
+DEV_MODE = True  # TODO: Move to environment variable
 
 app = FastAPI(
     title="PackMeUp API",
@@ -38,12 +33,11 @@ app = FastAPI(
 # Add middleware first
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
-    max_age=3600,
 )
 
 app.add_middleware(

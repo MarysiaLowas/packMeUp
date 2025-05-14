@@ -12,16 +12,16 @@ import { useAuth } from '@/lib/hooks/useAuth';
 
 const registerFormSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
-  first_name: z.string()
-    .min(2, 'Imię musi mieć co najmniej 2 znaki')
+  firstName: z.string()
+    .min(2, 'Imię musi mieć minimum 2 znaki')
     .max(50, 'Imię nie może być dłuższe niż 50 znaków'),
   password: z.string()
-    .min(8, 'Hasło musi mieć co najmniej 8 znaków')
-    .regex(/[A-Z]/, 'Hasło musi zawierać wielką literę')
-    .regex(/[0-9]/, 'Hasło musi zawierać cyfrę'),
+    .min(8, 'Hasło musi mieć minimum 8 znaków')
+    .regex(/[A-Z]/, 'Hasło musi zawierać przynajmniej jedną wielką literę')
+    .regex(/[0-9]/, 'Hasło musi zawierać przynajmniej jedną cyfrę'),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Hasła nie są identyczne",
+  message: "Hasła muszą być takie same",
   path: ["confirmPassword"],
 });
 
@@ -35,7 +35,7 @@ export const RegisterForm = () => {
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       email: '',
-      first_name: '',
+      firstName: '',
       password: '',
       confirmPassword: '',
     },
@@ -45,9 +45,11 @@ export const RegisterForm = () => {
     setApiError(null);
     
     try {
-      // Pomijamy confirmPassword, które nie jest potrzebne w API
-      const { confirmPassword, ...registerData } = data;
-      await register(registerData);
+      await register({
+        email: data.email,
+        firstName: data.firstName,
+        password: data.password,
+      });
       // Przekierowanie nastąpi automatycznie przez AuthService
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas rejestracji');
@@ -82,12 +84,13 @@ export const RegisterForm = () => {
 
             <FormField
               control={form.control}
-              name="first_name"
+              name="firstName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Imię</FormLabel>
                   <FormControl>
                     <Input 
+                      type="text" 
                       placeholder="Jan" 
                       {...field} 
                     />

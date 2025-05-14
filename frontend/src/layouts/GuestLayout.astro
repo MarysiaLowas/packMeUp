@@ -1,0 +1,34 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<BaseLayout title={title}>
+  <div class="container relative min-h-[calc(100vh-4rem)] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+    <div class="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
+      <div class="absolute inset-0 bg-zinc-900" />
+      <div class="relative z-20 flex items-center text-lg font-medium">
+        <img src="/logo.svg" alt="PackMeUp Logo" class="h-8" />
+      </div>
+      <div class="relative z-20 mt-auto">
+        <blockquote class="space-y-2">
+          <p class="text-lg">
+            "PackMeUp pomógł mi spakować się na każdą podróż. Teraz nie muszę się martwić, że o czymś zapomnę!"
+          </p>
+          <footer class="text-sm">Sofia Davis</footer>
+        </blockquote>
+      </div>
+    </div>
+    <div class="p-4 lg:p-8 h-full flex items-center">
+      <div class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+        
+        <slot />
+      </div>
+    </div>
+  </div>
+</BaseLayout> 
