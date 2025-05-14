@@ -1,9 +1,9 @@
 ---
-import AuthLayout from "@/layouts/AuthLayout.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Button } from "@/components/ui/button";
 ---
 
-<AuthLayout title="Dashboard">
+<BaseLayout title="Dashboard" requireAuth={true}>
   <div class="max-w-4xl mx-auto">
     <div class="flex flex-col items-center justify-center space-y-6">
       <h1 class="text-4xl font-bold">Twój Dashboard</h1>
@@ -15,4 +15,4 @@ import { Button } from "@/components/ui/button";
       </a>
     </div>
   </div>
-</AuthLayout> 
+</BaseLayout> 

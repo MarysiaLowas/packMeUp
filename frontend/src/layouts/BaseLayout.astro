@@ -1,12 +1,25 @@
 ---
 import "../styles/global.css";
 import { Navigation } from "@/components/ui/navigation";
+import { getSession } from "@/lib/auth/session";
 
 interface Props {
   title: string;
+  requireAuth?: boolean;
 }
 
-const { title } = Astro.props;
+const { title, requireAuth = false } = Astro.props;
+const session = await getSession(Astro.request);
+
+// Redirect if auth is required but user is not authenticated
+if (requireAuth && !session) {
+  return Astro.redirect('/login');
+}
+
+// Redirect authenticated users away from auth pages
+if (session && ['/login', '/register', '/reset-password'].includes(Astro.url.pathname)) {
+  return Astro.redirect('/dashboard');
+}
 ---
 
 <!DOCTYPE html>
@@ -21,7 +34,11 @@ const { title } = Astro.props;
   </head>
   <body class="min-h-screen bg-background font-sans antialiased">
     <div class="relative flex min-h-screen flex-col">
-      <Navigation client:load />
+      <Navigation 
+        client:load 
+        isAuthenticated={!!session}
+        userName={session?.firstName}
+      />
       <main class="flex-1 container mx-auto px-4 py-8">
         <slot />
       </main>

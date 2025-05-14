@@ -1,10 +1,10 @@
 ---
-import GuestLayout from '@/layouts/GuestLayout.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 import { LoginForm } from '@/components/auth/LoginForm';
 ---
 
-<GuestLayout title="Logowanie">
+<BaseLayout title="Logowanie">
   <div class="max-w-md mx-auto">
     <LoginForm client:load />
   </div>
-</GuestLayout> 
+</BaseLayout> 
