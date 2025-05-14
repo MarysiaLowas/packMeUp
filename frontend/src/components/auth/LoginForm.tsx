@@ -8,8 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Link } from '@/components/ui/link';
-import { AuthService } from '@/lib/services/auth.service';
-import type { ApiError } from '@/types/auth';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const loginFormSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
@@ -22,9 +21,8 @@ const loginFormSchema = z.object({
 type LoginFormShape = z.infer<typeof loginFormSchema>;
 
 export const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const authService = AuthService.getInstance();
+  const { login, isLoading } = useAuth();
 
   const form = useForm<LoginFormShape>({
     resolver: zodResolver(loginFormSchema),
@@ -35,16 +33,13 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (data: LoginFormShape) => {
-    setIsLoading(true);
     setApiError(null);
     
     try {
-      await authService.login(data);
-      window.location.href = '/dashboard';
+      await login(data);
+      // Przekierowanie nastąpi automatycznie przez AuthService
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas logowania');
-    } finally {
-      setIsLoading(false);
     }
   };
 

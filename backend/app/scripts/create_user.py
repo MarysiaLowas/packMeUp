@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import argparse
 import asyncio
-import hashlib
 import os
 from uuid import UUID
 from fastapi_sqlalchemy import async_db as db
 from fastapi_sqlalchemy import AsyncDBSessionMiddleware
+from passlib.context import CryptContext
 
 from app.main import app
 from app.models import User
@@ -13,15 +13,12 @@ from app import settings  # an object to provide global access to a database ses
 
 dupa = AsyncDBSessionMiddleware(app, db_url=settings.POSTGRES_URL)
 
+# Use the same password hashing as in UserService
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 def hash_password(password: str) -> str:
-    """Hash a password using SHA-256 with a random salt."""
-    # Generate a random 32-byte salt
-    salt = os.urandom(32)
-    # Hash the password with the salt
-    hash_obj = hashlib.sha256()
-    hash_obj.update(salt + password.encode('utf-8'))
-    # Return salt + hash in hex format
-    return salt.hex() + hash_obj.hexdigest()
+    """Hash a password using bcrypt."""
+    return pwd_context.hash(password)
 
 async def create_user(
     email: str,
@@ -46,7 +43,7 @@ async def create_user(
     """
     try:
         async with db():
-            # Hash the password
+            # Hash the password using bcrypt
             hashed_password = hash_password(password)
             
             # Create user object

@@ -53,6 +53,23 @@ class User(Base, CrudMixin):
         return f"<User(id={self.id}, email='{self.email}')>"
 
 
+class ActiveSession(Base, CrudMixin):
+    __tablename__ = 'active_sessions'
+
+    id: Mapped[uuid.UUID] = mapped_column(SQLAlchemyUUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    user_id: Mapped[uuid.UUID] = mapped_column(SQLAlchemyUUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, unique=True)
+    refresh_token: Mapped[str] = mapped_column(String, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+
+    # Relationship
+    user: Mapped["User"] = relationship("User", backref="active_session")
+
+    def __repr__(self):
+        return f"<ActiveSession(user_id={self.user_id}, expires_at={self.expires_at})>"
+
+
 class Item(Base, CrudMixin):
     __tablename__ = 'items'
     # Note: CHECK constraint 'weight >= 0' should be added in migration

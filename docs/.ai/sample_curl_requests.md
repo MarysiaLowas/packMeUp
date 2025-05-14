@@ -2,6 +2,15 @@
 
 Below are some sample curl commands to test the list_trips and create_trip endpoints in trips.py.
 
+
+## Log in
+
+```bash
+curl -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=maria.lowas@gmail.com&password=TWOJE_HASLO"
+```
+
 ## Create Trip with Full Details
 
 ```bash

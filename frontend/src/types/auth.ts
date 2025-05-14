@@ -28,5 +28,22 @@ export interface ApiError {
 export interface User {
   id: string;
   email: string;
-  name: string;
+  first_name: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  first_name: string;
+}
+
+export interface Token {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
 } 

@@ -8,11 +8,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Link } from '@/components/ui/link';
-import { AuthService } from '@/lib/services/auth.service';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const registerFormSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
-  name: z.string().min(2, 'Imię musi mieć co najmniej 2 znaki'),
+  first_name: z.string()
+    .min(2, 'Imię musi mieć co najmniej 2 znaki')
+    .max(50, 'Imię nie może być dłuższe niż 50 znaków'),
   password: z.string()
     .min(8, 'Hasło musi mieć co najmniej 8 znaków')
     .regex(/[A-Z]/, 'Hasło musi zawierać wielką literę')
@@ -26,41 +28,29 @@ const registerFormSchema = z.object({
 type RegisterFormShape = z.infer<typeof registerFormSchema>;
 
 export const RegisterForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const authService = AuthService.getInstance();
+  const { register, isLoading } = useAuth();
 
   const form = useForm<RegisterFormShape>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       email: '',
-      name: '',
+      first_name: '',
       password: '',
       confirmPassword: '',
     },
   });
 
   const onSubmit = async (data: RegisterFormShape) => {
-    setIsLoading(true);
     setApiError(null);
     
     try {
       // Pomijamy confirmPassword, które nie jest potrzebne w API
       const { confirmPassword, ...registerData } = data;
-      await authService.register(registerData);
-      
-      // Po udanej rejestracji, automatycznie logujemy użytkownika
-      const loginResponse = await authService.login({
-        email: data.email,
-        password: data.password
-      });
-      
-      // Przekierowanie do dashboardu
-      window.location.href = '/dashboard';
+      await register(registerData);
+      // Przekierowanie nastąpi automatycznie przez AuthService
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas rejestracji');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -92,7 +82,7 @@ export const RegisterForm = () => {
 
             <FormField
               control={form.control}
-              name="name"
+              name="first_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Imię</FormLabel>
