@@ -7,6 +7,17 @@ interface Props {
 }
 
 const { title } = Astro.props;
+
+// TODO: Implement proper session check
+const user = {
+  isAuthenticated: true,
+  firstName: "User" // This will be replaced with actual user data
+};
+
+// Redirect to login if not authenticated
+if (!user.isAuthenticated && Astro.url.pathname !== '/login') {
+  return Astro.redirect('/login');
+}
 ---
 
 <!DOCTYPE html>
@@ -21,7 +32,11 @@ const { title } = Astro.props;
   </head>
   <body class="min-h-screen bg-background font-sans antialiased">
     <div class="relative flex min-h-screen flex-col">
-      <Navigation client:load />
+      <Navigation 
+        client:load 
+        isAuthenticated={true}
+        userName={user.firstName}
+      />
       <main class="flex-1 container mx-auto px-4 py-8">
         <slot />
       </main>

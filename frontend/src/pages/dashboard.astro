@@ -1,26 +1,18 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import AuthLayout from "@/layouts/AuthLayout.astro";
 import { Button } from "@/components/ui/button";
 ---
 
-<Layout title="Dashboard - PackMeUp">
-  <main class="container mx-auto px-4 py-16">
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-4xl font-bold">
-        Twoje podróże
-      </h1>
+<AuthLayout title="Dashboard">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex flex-col items-center justify-center space-y-6">
+      <h1 class="text-4xl font-bold">Twój Dashboard</h1>
+      <p class="text-xl text-muted-foreground text-center">
+        Witaj w PackMeUp! Tutaj będziesz mógł zarządzać swoimi listami pakowania.
+      </p>
       <a href="/new-trip">
-        <Button client:load>
-          Nowa podróż
-        </Button>
+        <Button size="lg">Zaplanuj nową podróż</Button>
       </a>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Tu będą wyświetlane karty z podróżami -->
-      <div class="p-8 border rounded-lg text-center text-muted-foreground">
-        Nie masz jeszcze żadnych podróży. 
-        Kliknij "Nowa podróż" aby rozpocząć planowanie!
-      </div>
-    </div>
-  </main>
-</Layout> 
+  </div>
+</AuthLayout> 
