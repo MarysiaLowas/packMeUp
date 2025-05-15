@@ -53,27 +53,7 @@ Do not wrap the array in any additional object.
         
         # Set response format schema
         self.openrouter.set_response_format({
-            "type": "json_schema",
-            "json_schema": {
-                "name": "packing_list",
-                "strict": True,
-                "schema": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": {"type": "string"},
-                            "quantity": {"type": "integer", "minimum": 1},
-                            "category": {
-                                "type": "string",
-                                "enum": ["Clothing", "Electronics", "Toiletries", "Documents", "Accessories", "Health", "Entertainment"]
-                            },
-                            "weight": {"type": "number"}
-                        },
-                        "required": ["name", "quantity", "category"]
-                    }
-                }
-            }
+            "type": "json_object"
         })
         
         # Set model name (using Mistral-7B for structured output)
