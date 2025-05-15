@@ -47,6 +47,20 @@ export default {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+        success: {
+          DEFAULT: "var(--success)",
+          foreground: "var(--success-foreground)",
+        },
+        warning: {
+          DEFAULT: "var(--warning)",
+          foreground: "var(--warning-foreground)",
+        },
+        brandGreen: "#77eaa2",
+        brandLime: "#7de03f",
+        brandPink: "#e03f88",
+        grayPurple: "#614c55",
+        grayGreen: "#4c6153",
+        oliveGreen: "#54614C",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -3,10 +3,86 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 235 5% 32%;
+    
+    /* Main brand colors */
+    --primary: 147 79% 68%;          /* #77eaa2 - Main brand color (green) */
+    --primary-foreground: 235 5% 10%;
+    
+    --secondary: 98 72% 56%;         /* #7de03f - Secondary brand color (lime green) */
+    --secondary-foreground: 235 5% 10%;
+    
+    --accent: 334 74% 56%;           /* #e03f88 - Accent color (pink) */
+    --accent-foreground: 0 0% 98%;
+    
+    /* Neutral colors */
+    --muted: 315 8% 34%;             /* #614c55 - Muted purple-gray */
+    --muted-foreground: 0 0% 96%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 235 5% 32%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 235 5% 32%;
+    
+    /* UI elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 147 79% 68%;             /* Using primary color for ring */
+    
+    /* Semantic colors */
+    --destructive: 334 74% 56%;      /* Using accent color (pink) for destructive */
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Additional colors for UI elements */
+    --success: 147 79% 68%;          /* Using primary color for success */
+    --success-foreground: 235 5% 10%;
+    
+    --warning: 98 72% 56%;           /* Using secondary color for warning */
+    --warning-foreground: 235 5% 10%;
+    
+    /* Other */
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 235 5% 15%;
+    --foreground: 0 0% 98%;
+    
+    --primary: 147 79% 68%;          /* #77eaa2 */
+    --primary-foreground: 235 5% 10%;
+    
+    --secondary: 98 72% 56%;         /* #7de03f */
+    --secondary-foreground: 235 5% 10%;
+    
+    --accent: 334 74% 56%;           /* #e03f88 */
+    --accent-foreground: 0 0% 98%;
+    
+    --muted: 315 8% 25%;             /* Darker version of #614c55 */
+    --muted-foreground: 0 0% 90%;
+    
+    --card: 235 5% 17%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 235 5% 17%;
+    --popover-foreground: 0 0% 98%;
+    
+    --border: 235 5% 25%;
+    --input: 235 5% 25%;
+    --ring: 147 79% 68%;
+    
+    --destructive: 334 74% 56%;
+    --destructive-foreground: 0 0% 98%;
+  }
+
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 } 

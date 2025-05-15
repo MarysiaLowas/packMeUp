@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-
 import { AuthProvider } from './lib/providers/AuthProvider';
 import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { ThemeProvider } from './components/ui/theme-provider';
 
 // Lazy loading komponentów
 const DashboardLayout = lazy(() => import('./components/dashboard/DashboardLayout'));
@@ -12,6 +13,7 @@ const RegisterForm = lazy(() => import('./components/auth/RegisterForm'));
 const ResetPasswordForm = lazy(() => import('./components/auth/ResetPasswordForm'));
 const NewTripPage = lazy(() => import('./components/new-trip/NewTripPage'));
 const PackingList = lazy(() => import('./components/packing-list/PackingList'));
+const ThemeGuide = lazy(() => import('./components/ui/theme-guide').then(module => ({ default: module.ThemeGuide })));
 
 // Komponent ładowania
 const LoadingSpinner = () => (
@@ -37,39 +39,42 @@ const PackingListWrapper = () => {
 export function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Layout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route path="/login" element={<LoginForm />} />
-              <Route path="/register" element={<RegisterForm />} />
-              <Route path="/reset-password" element={<ResetPasswordForm />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<DashboardHome />} />
-                <Route path="new-trip" element={<NewTripPage />} />
-              </Route>
-              <Route 
-                path="/trips/:tripId/lists/:listId" 
-                element={
-                  <ProtectedRoute>
-                    <PackingListWrapper />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              {/* Catch-all route for 404 */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </Layout>
-      </AuthProvider>
+      <ThemeProvider defaultTheme="light">
+        <AuthProvider>
+          <Layout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route path="/login" element={<LoginForm />} />
+                <Route path="/register" element={<RegisterForm />} />
+                <Route path="/reset-password" element={<ResetPasswordForm />} />
+                <Route path="/theme-guide" element={<ThemeGuide />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<DashboardHome />} />
+                  <Route path="new-trip" element={<NewTripPage />} />
+                </Route>
+                <Route 
+                  path="/trips/:tripId/lists/:listId" 
+                  element={
+                    <ProtectedRoute>
+                      <PackingListWrapper />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                {/* Catch-all route for 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </Layout>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 } 
