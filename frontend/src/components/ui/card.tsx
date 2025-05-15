@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      "rounded-lg border border-grayPurple/10 bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative overflow-hidden",
       className
     )}
     {...props}
@@ -35,7 +35,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("text-xl font-semibold leading-none tracking-tight", className)}
+    className={cn("text-xl font-semibold leading-none tracking-tight relative pb-2 after:absolute after:left-0 after:bottom-0 after:w-8 after:h-0.5 after:bg-brandGreen after:rounded-full", className)}
     {...props}
   />
 ));
@@ -81,18 +81,18 @@ const ThemedCard = React.forwardRef<
   }
 >(({ className, variant = "default", ...props }, ref) => {
   const variantClasses = {
-    primary: "bg-primary/5 border-primary/20 hover:border-primary/30",
-    secondary: "bg-secondary/5 border-secondary/20 hover:border-secondary/30",
-    accent: "bg-accent/5 border-accent/20 hover:border-accent/30",
-    muted: "bg-muted/10 border-muted/20 hover:border-muted/30",
-    default: "",
+    primary: "before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-brandGreen before:to-brandLime border-brandGreen/20 hover:border-brandGreen/40 bg-brandGreen/5",
+    secondary: "before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-brandLime before:to-brandLime/70 border-brandLime/20 hover:border-brandLime/40 bg-brandLime/5",
+    accent: "before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-brandPink before:to-grayPurple border-brandPink/20 hover:border-brandPink/40 bg-brandPink/5",
+    muted: "before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-grayPurple before:to-grayGreen border-grayPurple/20 hover:border-grayPurple/30 bg-grayPurple/5",
+    default: "before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-brandGreen/40 before:to-transparent",
   };
 
   return (
     <Card
       ref={ref}
       className={cn(
-        "transition-colors duration-200",
+        "transition-all duration-300",
         variantClasses[variant],
         className
       )}
