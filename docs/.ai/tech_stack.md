@@ -10,6 +10,14 @@ Backend - FastAPI + SQLAlchemy:
     Zapewnia bazę danych PostgreSQL.
     Do migracji użyjemy paczki Alembik.
 
+Testing - Framework'i i narzędzia testujące:
+
+    Vitest / React Testing Library do testów jednostkowych komponentów React
+    pytest do testów jednostkowych i integracyjnych backendu (FastAPI)
+    Playwright do kompleksowych testów end-to-end
+    Storybook do testowania izolowanych komponentów UI
+    Lighthouse do testów wydajności i dostępności
+
 AI - Komunikacja z modelami przez usługę Openrouter.ai:
 
     Dostęp do szerokiej gamy modeli (OpenAI, Anthropic, Google i wiele innych), które pozwolą nam znaleźć rozwiązanie zapewniające wysoką efektywność i niskie koszta
@@ -17,6 +25,6 @@ AI - Komunikacja z modelami przez usługę Openrouter.ai:
 
 CI/CD i Hosting:
 
-    Github Actions do tworzenia pipeline’ów CI/CD
+    Github Actions do tworzenia pipeline'ów CI/CD
     Render do hostowania aplikacji
 
