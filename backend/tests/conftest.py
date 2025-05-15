@@ -69,11 +69,16 @@ def test_client():
 
 @pytest.fixture
 def mock_db_session(mocker):
-    """Mock the database session dependency."""
+    """Mock the database session dependency.
+    
+    Note: This fixture assumes that you have or will create a get_db dependency in your app.
+    If your app uses a different approach for DB session management (like middleware), 
+    this fixture should be modified accordingly.
+    """
     mock_session = mocker.MagicMock()
     
-    # Patch the get_db dependency in your app to use the mock session
-    mocker.patch("app.main.get_db", return_value=mock_session)
+    # Fixture is preserved for future use when get_db is implemented
+    # Currently, FastAPI-SQLAlchemy middleware is used instead of dependency injection
     
     return mock_session
 
