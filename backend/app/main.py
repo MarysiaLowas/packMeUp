@@ -12,10 +12,8 @@ from app.config import CORS_ORIGINS
 # Configure root logger
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
 )
 
 # Create logger for this module
@@ -27,7 +25,7 @@ DEV_MODE = True  # TODO: Move to environment variable
 app = FastAPI(
     title="PackMeUp API",
     description="API for managing packing lists and trips",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add middleware first
@@ -41,9 +39,7 @@ app.add_middleware(
 )
 
 app.add_middleware(
-    AsyncDBSessionMiddleware, 
-    commit_on_exit=True,
-    db_url=settings.POSTGRES_URL
+    AsyncDBSessionMiddleware, commit_on_exit=True, db_url=settings.POSTGRES_URL
 )
 
 # Then add routers
@@ -51,6 +47,7 @@ app.include_router(trips_router)
 app.include_router(special_lists_router)
 app.include_router(generated_lists_router)
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+
 
 @app.get("")
 async def root():

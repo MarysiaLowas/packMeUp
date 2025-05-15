@@ -3,7 +3,6 @@ import sys
 import pytest
 import asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -36,15 +35,15 @@ def event_loop():
 async def async_engine():
     """Create a new async engine for testing."""
     engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-    
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     yield engine
-    
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-    
+
     await engine.dispose()
 
 
@@ -54,7 +53,7 @@ async def async_session(async_engine):
     async_session_maker = sessionmaker(
         async_engine, class_=AsyncSession, expire_on_commit=False
     )
-    
+
     async with async_session_maker() as session:
         yield session
         await session.rollback()
@@ -70,17 +69,17 @@ def test_client():
 @pytest.fixture
 def mock_db_session(mocker):
     """Mock the database session dependency.
-    
+
     Note: This fixture assumes that you have or will create a get_db dependency in your app.
-    If your app uses a different approach for DB session management (like middleware), 
+    If your app uses a different approach for DB session management (like middleware),
     this fixture should be modified accordingly.
     """
     mock_session = mocker.MagicMock()
-    
+
     # Fixture is preserved for future use when get_db is implemented
     # Currently, FastAPI-SQLAlchemy middleware is used instead of dependency injection
-    
+
     return mock_session
 
 
-# Add more fixtures as needed for your specific application requirements 
+# Add more fixtures as needed for your specific application requirements

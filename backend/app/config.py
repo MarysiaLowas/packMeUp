@@ -1,6 +1,4 @@
-"""
-Application configuration and settings
-"""
+"""Application configuration and settings."""
 
 # Development settings
 DEV_MODE = True  # TODO: Move to environment variable
@@ -13,4 +11,4 @@ CORS_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:4322",
     "http://127.0.0.1:4310",
-] 
+]

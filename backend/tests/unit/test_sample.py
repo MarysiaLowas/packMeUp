@@ -1,8 +1,8 @@
 import pytest
-from unittest.mock import MagicMock, patch
 
 # Example unit test for demonstration purposes
 # Replace with actual unit tests for your application
+
 
 # Sample function to test
 def add_numbers(a, b):
@@ -17,10 +17,10 @@ class TestSample:
         # Arrange
         a, b = 1, 2
         expected = 3
-        
+
         # Act
         result = add_numbers(a, b)
-        
+
         # Assert
         assert result == expected
 
@@ -43,10 +43,10 @@ class TestSample:
         # Create a mock object
         mock_obj = mocker.MagicMock()
         mock_obj.some_method.return_value = 42
-        
+
         # Use the mock
         result = mock_obj.some_method()
-        
+
         # Assert
         assert result == 42
         mock_obj.some_method.assert_called_once()
@@ -54,12 +54,13 @@ class TestSample:
     @pytest.mark.asyncio
     async def test_async_function(self):
         """Test an asynchronous function."""
+
         # Define an async function to test
         async def async_add(a, b):
             return a + b
-        
+
         # Call the async function and await it
         result = await async_add(3, 4)
-        
+
         # Assert
-        assert result == 7 
+        assert result == 7

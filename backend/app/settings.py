@@ -1,34 +1,34 @@
 # Domain
 # This would be set to the production domain with an env var on deployment
 # used by Traefik to transmit traffic and aqcuire TLS certificates
-DOMAIN="localhost"
+DOMAIN = "localhost"
 # To test the local Traefik config
 # DOMAIN=localhost.tiangolo.com
 
 # Used by the backend to generate links in emails to the frontend
-FRONTEND_HOST="http://localhost:5173"
+FRONTEND_HOST = "http://localhost:5173"
 # In staging and production, set this env var to the frontend host, e.g.
 # FRONTEND_HOST=https://dashboard.example.com
 
 # Environment: local, staging, production
-ENVIRONMENT="local"
+ENVIRONMENT = "local"
 
-PROJECT_NAME="Pack me up"
-STACK_NAME="pack-me-up"
+PROJECT_NAME = "Pack me up"
+STACK_NAME = "pack-me-up"
 
 # Backend
-BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5173,https://localhost,https://localhost:5173,http://localhost.tiangolo.com"
-SECRET_KEY="changethis"
-FIRST_SUPERUSER="admin@example.com"
-FIRST_SUPERUSER_PASSWORD="changethis"
+BACKEND_CORS_ORIGINS = "http://localhost,http://localhost:5173,https://localhost,https://localhost:5173,http://localhost.tiangolo.com"
+SECRET_KEY = "changethis"
+FIRST_SUPERUSER = "admin@example.com"
+FIRST_SUPERUSER_PASSWORD = "changethis"
 
 
 # Postgres
-POSTGRES_SERVER="localhost"
-POSTGRES_PORT="5432"
-POSTGRES_DB=""
-POSTGRES_USER=""
-POSTGRES_PASSWORD=""
+POSTGRES_SERVER = "localhost"
+POSTGRES_PORT = "5432"
+POSTGRES_DB = ""
+POSTGRES_USER = ""
+POSTGRES_PASSWORD = ""
 
 # SENTRY_DSN=
 
@@ -36,6 +36,6 @@ POSTGRES_PASSWORD=""
 # DOCKER_IMAGE_BACKEND=backend
 # DOCKER_IMAGE_FRONTEND=frontend
 
-from app.local_settings import *
+from app.local_settings import *  # noqa: F403
 
-POSTGRES_URL=f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
+POSTGRES_URL = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"

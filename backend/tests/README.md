@@ -60,4 +60,4 @@ Common fixtures are defined in `conftest.py`:
 
 ## Async Testing
 
-Use the `@pytest.mark.asyncio` decorator for async tests and `async_session` fixture for database operations. 
+Use the `@pytest.mark.asyncio` decorator for async tests and `async_session` fixture for database operations.

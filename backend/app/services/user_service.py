@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+
 UTC = timezone.utc
 
 from typing import Optional
@@ -11,12 +12,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.models import User, ActiveSession
-from app.crud import CrudMixin
 
 # Configure logger
 logger = logging.getLogger(__name__)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 class UserService:
     @staticmethod
@@ -39,19 +40,19 @@ class UserService:
             user_data = {
                 "email": email,
                 "hashed_password": hashed_password,
-                "first_name": first_name
+                "first_name": first_name,
             }
             user = await User.create(**user_data)
             return user
         except IntegrityError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered"
+                detail="Email already registered",
             )
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Could not create user"
+                detail="Could not create user",
             )
 
     @staticmethod
@@ -59,56 +60,60 @@ class UserService:
         try:
             logger.debug("Looking up user by email: %s", email)
             user = await UserService.get_user_by_email(email)
-            
+
             if not user:
                 logger.warning("User not found for email: %s", email)
                 # Use the same error message for both cases to prevent email enumeration
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Incorrect email or password",
-                    headers={"WWW-Authenticate": "Bearer"}
+                    headers={"WWW-Authenticate": "Bearer"},
                 )
-            
+
             logger.debug("Verifying password for user: %s", email)
             if not UserService.verify_password(password, user.hashed_password):
                 logger.warning("Invalid password for user: %s", email)
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Incorrect email or password",
-                    headers={"WWW-Authenticate": "Bearer"}
+                    headers={"WWW-Authenticate": "Bearer"},
                 )
-            
-            logger.info("User authenticated successfully: %s", email)    
+
+            logger.info("User authenticated successfully: %s", email)
             return user
-            
+
         except HTTPException:
             raise
         except Exception as e:
-            logger.error("Unexpected error during authentication: %s", str(e), exc_info=True)
+            logger.error(
+                "Unexpected error during authentication: %s", str(e), exc_info=True
+            )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Authentication error"
+                detail="Authentication error",
             )
 
     @staticmethod
-    async def create_session(user_id: UUID, refresh_token: str, expires_in_days: int = 7) -> ActiveSession:
+    async def create_session(
+        user_id: UUID, refresh_token: str, expires_in_days: int = 7
+    ) -> ActiveSession:
         try:
             # Remove any existing session
             await ActiveSession.delete(user_id=user_id)
-            
+
             # Create new session
             expires_at = datetime.now(UTC) + timedelta(days=expires_in_days)
             session_data = {
                 "user_id": user_id,
                 "refresh_token": refresh_token,
-                "expires_at": expires_at
+                "expires_at": expires_at,
             }
             session = await ActiveSession.create(**session_data)
             return session
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Could not create session"
+                detail="Could not create session",
             )
 
     @staticmethod
@@ -122,7 +127,7 @@ class UserService:
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Could not get session"
+                detail="Could not get session",
             )
 
     @staticmethod
@@ -132,5 +137,5 @@ class UserService:
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Could not delete session"
-            ) 
+                detail="Could not delete session",
+            )

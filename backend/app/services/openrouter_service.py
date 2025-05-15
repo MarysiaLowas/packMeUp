@@ -1,9 +1,8 @@
 import aiohttp
 import logging
-import time
 import os
 import asyncio
-from typing import Optional, Dict, Any, Callable
+from typing import Dict, Any
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -17,9 +16,12 @@ logger.setLevel(logging.DEBUG)
 if not logger.handlers:
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
+
 
 class OpenRouterService:
     """Service class for interacting with the OpenRouter API.
@@ -28,9 +30,7 @@ class OpenRouterService:
     """
 
     def __init__(self, api_key: str, api_endpoint: str) -> None:
-        """
-        Initialize the service with API key and endpoint.
-        """
+        """Initialize the service with API key and endpoint."""
         if not isinstance(api_key, str) or not api_key.strip():
             raise ValueError("API key must be a non-empty string")
         if not isinstance(api_endpoint, str) or not api_endpoint.strip():
@@ -42,21 +42,23 @@ class OpenRouterService:
         self._response_format: Dict[str, Any] = {}
         self._model_name: str = ""
         self._model_parameters: Dict[str, Any] = {}
-        
+
         # Retry configuration
         self._max_retries: int = 3
         self._backoff_factor: float = 1.0
 
     @classmethod
-    def from_env(cls) -> 'OpenRouterService':
-        """
-        Create an instance of OpenRouterService using environment variables.
-        Expects OPENROUTER_API_KEY and OPENROUTER_API_ENDPOINT to be set.
+    def from_env(cls) -> "OpenRouterService":
+        """Create an instance of OpenRouterService using environment variables.
+
+        It expects OPENROUTER_API_KEY and OPENROUTER_API_ENDPOINT to be set.
         """
         api_key = os.environ.get("OPENROUTER_API_KEY")
         api_endpoint = os.environ.get("OPENROUTER_API_ENDPOINT")
         if not api_key or not api_endpoint:
-            raise ValueError("Environment variables OPENROUTER_API_KEY and OPENROUTER_API_ENDPOINT must be set")
+            raise ValueError(
+                "Environment variables OPENROUTER_API_KEY and OPENROUTER_API_ENDPOINT must be set"
+            )
         return cls(api_key, api_endpoint)
 
     # Public Methods
@@ -91,90 +93,84 @@ class OpenRouterService:
         self._model_parameters = params
 
     async def send_request(self) -> Any:
-        """
-        Send the request to the OpenRouter API asynchronously.
-        """
+        """Send the request to the OpenRouter API asynchronously."""
         headers = {
             "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
         payload = self._build_request_payload()
         logger.debug(f"Sending request to OpenRouter with payload: {payload}")
-        
+
         timeout = aiohttp.ClientTimeout(
             total=90,  # Total timeout
             connect=10,  # Connection timeout
-            sock_read=60  # Socket read timeout
+            sock_read=60,  # Socket read timeout
         )
-        
+
         for attempt in range(self._max_retries):
             try:
                 async with aiohttp.ClientSession(timeout=timeout) as session:
                     async with session.post(
-                        self._api_endpoint,
-                        headers=headers,
-                        json=payload
+                        self._api_endpoint, headers=headers, json=payload
                     ) as response:
                         if response.status != 200:
                             text = await response.text()
-                            logger.error(f"API call failed with status {response.status}: {text}")
-                            raise Exception(f"API call failed with status code {response.status}: {text}")
-                        
+                            logger.error(
+                                f"API call failed with status {response.status}: {text}"
+                            )
+                            raise Exception(
+                                f"API call failed with status code {response.status}: {text}"
+                            )
+
                         try:
                             data = await response.json()
                             logger.debug(f"Received response from OpenRouter: {data}")
                             return data
                         except asyncio.TimeoutError as e:
                             logger.error(f"Timeout while reading response: {e}")
-                            raise Exception("OpenRouter API timeout while reading response")
+                            raise Exception(
+                                "OpenRouter API timeout while reading response"
+                            )
                         except Exception as e:
                             logger.error(f"Error parsing response: {e}")
-                            raise Exception(f"Error parsing OpenRouter response: {str(e)}")
-                        
+                            raise Exception(
+                                f"Error parsing OpenRouter response: {str(e)}"
+                            )
+
             except asyncio.TimeoutError as e:
                 logger.error(f"Timeout during attempt {attempt + 1}: {e}")
                 if attempt == self._max_retries - 1:
                     raise Exception("OpenRouter API timeout after all retries")
-                wait = self._backoff_factor * (2 ** attempt)
+                wait = self._backoff_factor * (2**attempt)
                 logger.info(f"Retrying in {wait} seconds...")
                 await asyncio.sleep(wait)  # Use asyncio.sleep instead of time.sleep
-                
+
             except Exception as e:
                 logger.error(f"Attempt {attempt + 1} failed: {str(e)}", exc_info=True)
                 if not self._should_retry(e) or attempt == self._max_retries - 1:
                     raise Exception(f"OpenRouter API error: {str(e)}")
-                    
-                wait = self._backoff_factor * (2 ** attempt)
+
+                wait = self._backoff_factor * (2**attempt)
                 logger.info(f"Retrying in {wait} seconds...")
                 await asyncio.sleep(wait)  # Use asyncio.sleep instead of time.sleep
 
     # Private Methods
     def _build_request_payload(self) -> Dict[str, Any]:
-        """
-        Build the payload for the API request.
-        """
+        """Build the payload for the API request."""
         messages = []
         if self._system_message:
-            messages.append({
-                "role": "system",
-                "content": self._system_message
-            })
-        messages.append({
-            "role": "user",
-            "content": self._user_message
-        })
-        
+            messages.append({"role": "system", "content": self._system_message})
+        messages.append({"role": "user", "content": self._user_message})
+
         return {
             "model": self._model_name,
             "messages": messages,
             "response_format": self._response_format,
-            **self._model_parameters
+            **self._model_parameters,
         }
 
     def _should_retry(self, error: Exception) -> bool:
-        """
-        Determine if the request should be retried based on the error.
-        """
+        """Determine if the request should be retried based on the error."""
         if isinstance(error, (aiohttp.ClientError, aiohttp.ServerTimeoutError)):
             return True
         message = str(error)
@@ -184,4 +180,4 @@ class OpenRouterService:
                 return code >= 500
             except:
                 pass
-        return False 
+        return False
