@@ -109,4 +109,6 @@ export function PackingList({ listId }: PackingListProps) {
       </div>
     </div>
   );
-} 
+}
+
+export default PackingList; 

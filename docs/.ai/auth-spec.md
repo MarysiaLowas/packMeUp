@@ -8,10 +8,7 @@
   - **/register** – strona rejestracji
   - **/reset-password** – strona odzyskiwania hasła
   - **/logout** – endpoint wylogowania, który przekierowuje użytkownika do strony logowania lub strony głównej
-- Rozdzielenie layoutów:
-  - **Guest Layout** – dla użytkowników niezalogowanych, obejmujący rejestrację, logowanie oraz odzyskiwanie hasła
-  - **Auth Layout** – dla użytkowników zalogowanych, np. dashboard, profile
-- Strony będą renderowane przez Astro przy użyciu serwerowego renderowania (SSR) zgodnie z konfiguracją w astro.config.mjs.
+- Wszystkie strony będą renderowane na bazie jednego layoutu Astro. Chcemy ograniczyć SSR do absolutnego minimum.
 
 ### 1.2. Komponenty klienta (React)
 - Dynamiczne formularze zostaną zaimplementowane jako komponenty React:
@@ -59,14 +56,13 @@
 - Implementacja centralnych mechanizmów obsługi błędów (custom exception handlers), które logują błędy i zwracają czytelne komunikaty do klienta.
 
 ### 2.4. Renderowanie stron
-- Aktualizacja mechanizmu renderowania stron server-side, aby uwzględnić stan autentykacji użytkownika (opcje wyświetlania elementów dla zalogowanych i niezalogowanych użytkowników).
-- Przekazywanie stanu sesji do stron Astro, umożliwiając dynamiczne dostosowywanie widoku (np. menu, dostęp do konta).
+- Należy ograniczyć SSR do absolutnego minimum. Zarządzanie stanem zalogowanego bądź niezalogowanego użytkownika powinno odbywać się w całości po stronie clienta.
 
 ## 3. System autentykacji
 
 ### 3.1. Mechanizm autentykacji
 - Implementacja logiki autentykacji przy użyciu FastAPI:
-  - Wykorzystanie JWT lub cookies do zarządzania sesją użytkownika.
+  - Wykorzystanie JWT do zarządzania sesją użytkownika.
   - Dependency injection dla baz danych, logowania oraz usług dodatkowych (np. EmailService).
 - Endpointy autentykacyjne korzystają z warstwy usług biznesowych (AuthService, UserService), które zarządzają logiką rejestracji, logowania, wylogowania oraz resetu hasła.
 

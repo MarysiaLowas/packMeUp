@@ -43,6 +43,19 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class LoginCredentials(BaseModel):
+    username: EmailStr
+    password: str
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "username": "user@example.com",
+                "password": "StrongPass123"
+            }
+        }
+    }
+
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate) -> User:
     return await UserService.create_user(
@@ -65,11 +78,11 @@ def set_auth_cookie(response: Response, token: str):
 @router.post("/login", response_model=Token)
 async def login(
     response: Response,
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    credentials: LoginCredentials
 ) -> Token:
-    logger.info("Login attempt for user: %s", form_data.username)
-    user, token = await AuthService.authenticate(form_data.username, form_data.password)
-    logger.info("Login successful for user: %s", form_data.username)
+    logger.info("Login attempt for user: %s", credentials.username)
+    user, token = await AuthService.authenticate(credentials.username, credentials.password)
+    logger.info("Login successful for user: %s", credentials.username)
     return token
 
 @router.post("/refresh", response_model=Token)

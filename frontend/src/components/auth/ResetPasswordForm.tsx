@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Link } from '@/components/ui/link';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 const resetPasswordFormSchema = z.object({
@@ -16,7 +16,7 @@ const resetPasswordFormSchema = z.object({
 
 type ResetPasswordFormShape = z.infer<typeof resetPasswordFormSchema>;
 
-export const ResetPasswordForm = () => {
+const ResetPasswordForm = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const { resetPassword, isLoading } = useAuth();
@@ -95,7 +95,7 @@ export const ResetPasswordForm = () => {
 
               <div className="text-center text-sm text-muted-foreground">
                 Pamiętasz hasło?{' '}
-                <Link href="/login" className="hover:text-primary">
+                <Link to="/login" className="hover:text-primary">
                   Zaloguj się
                 </Link>
               </div>
@@ -105,4 +105,6 @@ export const ResetPasswordForm = () => {
       </CardContent>
     </Card>
   );
-}; 
+};
+
+export default ResetPasswordForm; 

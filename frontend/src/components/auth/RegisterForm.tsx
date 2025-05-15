@@ -1,18 +1,18 @@
 import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Link } from '@/components/ui/link';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 const registerFormSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
-  firstName: z.string()
+  first_name: z.string()
     .min(2, 'Imię musi mieć minimum 2 znaki')
     .max(50, 'Imię nie może być dłuższe niż 50 znaków'),
   password: z.string()
@@ -27,7 +27,7 @@ const registerFormSchema = z.object({
 
 type RegisterFormShape = z.infer<typeof registerFormSchema>;
 
-export const RegisterForm = () => {
+const RegisterForm = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const { register, isLoading } = useAuth();
 
@@ -35,7 +35,7 @@ export const RegisterForm = () => {
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       email: '',
-      firstName: '',
+      first_name: '',
       password: '',
       confirmPassword: '',
     },
@@ -47,10 +47,10 @@ export const RegisterForm = () => {
     try {
       await register({
         email: data.email,
-        firstName: data.firstName,
+        first_name: data.first_name,
         password: data.password,
       });
-      // Przekierowanie nastąpi automatycznie przez AuthService
+      // Nawigacja jest teraz obsługiwana przez AuthProvider
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas rejestracji');
     }
@@ -60,6 +60,9 @@ export const RegisterForm = () => {
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center">Rejestracja</CardTitle>
+        <CardDescription className="text-center">
+          Utwórz nowe konto, aby korzystać z aplikacji
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -84,7 +87,7 @@ export const RegisterForm = () => {
 
             <FormField
               control={form.control}
-              name="firstName"
+              name="first_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Imię</FormLabel>
@@ -142,20 +145,18 @@ export const RegisterForm = () => {
               </Alert>
             )}
 
-            <div className="space-y-4">
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
-                {isLoading ? 'Rejestracja...' : 'Zarejestruj się'}
+            <div className="flex flex-col gap-4">
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Tworzenie konta...' : 'Zarejestruj się'}
               </Button>
-
-              <div className="text-center text-sm text-muted-foreground">
-                Masz już konto?{' '}
-                <Link href="/login" className="hover:text-primary">
-                  Zaloguj się
-                </Link>
+              
+              <div className="text-center">
+                <div className="text-sm">
+                  Masz już konto?{' '}
+                  <RouterLink to="/login" className="text-primary hover:underline">
+                    Zaloguj się
+                  </RouterLink>
+                </div>
               </div>
             </div>
           </form>
@@ -163,4 +164,6 @@ export const RegisterForm = () => {
       </CardContent>
     </Card>
   );
-}; 
+};
+
+export default RegisterForm; 

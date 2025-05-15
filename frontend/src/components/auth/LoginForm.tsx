@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -7,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Link } from '@/components/ui/link';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 const loginFormSchema = z.object({
@@ -20,9 +20,10 @@ const loginFormSchema = z.object({
 
 type LoginFormShape = z.infer<typeof loginFormSchema>;
 
-export const LoginForm = () => {
+const LoginForm = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormShape>({
     resolver: zodResolver(loginFormSchema),
@@ -33,15 +34,12 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (data: LoginFormShape) => {
-    console.log('🎯 onSubmit called with data:', data);
     setApiError(null);
     
     try {
-      console.log('👉 Calling login function');
       await login(data);
-      console.log('✅ Login successful');
+      // Nawigacja jest teraz obsługiwana przez AuthProvider
     } catch (error) {
-      console.error('❌ Login failed:', error);
       setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas logowania');
     }
   };
@@ -96,24 +94,20 @@ export const LoginForm = () => {
               </Alert>
             )}
 
-            <div className="space-y-4">
-              <Button 
-                type="submit"
-                className="w-full" 
-                disabled={isLoading}
-              >
+            <div className="flex flex-col gap-4">
+              <Button type="submit" disabled={isLoading}>
                 {isLoading ? 'Logowanie...' : 'Zaloguj się'}
               </Button>
-
+              
               <div className="text-center space-y-2">
-                <Link href="/reset-password" className="text-sm text-muted-foreground hover:text-primary">
+                <RouterLink to="/reset-password" className="text-sm text-muted-foreground hover:text-primary">
                   Zapomniałeś hasła?
-                </Link>
-                <div className="text-sm text-muted-foreground">
+                </RouterLink>
+                <div className="text-sm">
                   Nie masz konta?{' '}
-                  <Link href="/register" className="hover:text-primary">
+                  <RouterLink to="/register" className="text-primary hover:underline">
                     Zarejestruj się
-                  </Link>
+                  </RouterLink>
                 </div>
               </div>
             </div>
@@ -122,4 +116,6 @@ export const LoginForm = () => {
       </CardContent>
     </Card>
   );
-}; 
+};
+
+export default LoginForm; 

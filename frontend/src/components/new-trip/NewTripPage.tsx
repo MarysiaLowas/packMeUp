@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -55,9 +56,11 @@ const createTripFormSchema = z.object({
 });
 
 export const NewTripPage = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const form = useForm<CreateTripFormShape>({
     resolver: zodResolver(createTripFormSchema),
@@ -70,7 +73,6 @@ export const NewTripPage = () => {
   });
 
   const onSubmit = async (data: CreateTripFormShape) => {
-    // Prevent form submission if not on the last step
     if (currentStep !== 3) {
       console.log('Form submission prevented - not on last step');
       return;
@@ -84,18 +86,15 @@ export const NewTripPage = () => {
       // Transform form data to API command
       const luggageItems = data.availableLuggage
         ?.filter(item => 
-          // Include items that have either weight or all dimensions
           item.maxWeight || (item.width && item.height && item.depth)
         )
         .map(item => {
           const luggageDTO: LuggageDTO = {};
           
-          // Only include maxWeight if it's specified
           if (item.maxWeight) {
             luggageDTO.maxWeight = item.maxWeight;
           }
 
-          // Only include dimensions if all dimensions are specified
           if (item.width && item.height && item.depth) {
             luggageDTO.dimensions = `${item.width}x${item.height}x${item.depth}`;
           }
@@ -120,8 +119,9 @@ export const NewTripPage = () => {
       );
       console.log('List generated:', generatedList);
 
-      // Redirect to the generated list
-      window.location.href = `/trips/${trip.id}/lists/${generatedList.id}`;
+      // Set navigating state and redirect
+      setIsNavigating(true);
+      navigate(`/trips/${trip.id}/lists/${generatedList.id}`);
 
     } catch (error) {
       console.error('Error in form submission:', error);
@@ -150,6 +150,15 @@ export const NewTripPage = () => {
       setCurrentStep(prev => prev - 1);
     }
   };
+
+  if (isNavigating) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <span className="ml-3">Przekierowywanie do listy pakowania...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -190,4 +199,6 @@ export const NewTripPage = () => {
       </Form>
     </div>
   );
-}; 
+};
+
+export default NewTripPage; 

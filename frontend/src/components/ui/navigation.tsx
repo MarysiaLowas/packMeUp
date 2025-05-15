@@ -1,16 +1,19 @@
-import { Link } from '@/components/ui/link';
-import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { Button } from './button';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 interface NavigationProps {
-  isAuthenticated?: boolean;
+  isAuthenticated: boolean;
   userName?: string;
 }
 
-export const Navigation = ({ isAuthenticated, userName }: NavigationProps) => {
+export function Navigation({ isAuthenticated, userName }: NavigationProps) {
+  const { logout } = useAuth();
+
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold">
+        <Link to="/" className="text-xl font-bold">
           PackMeUp
         </Link>
         
@@ -18,20 +21,18 @@ export const Navigation = ({ isAuthenticated, userName }: NavigationProps) => {
           {isAuthenticated ? (
             <>
               <span className="text-sm text-muted-foreground">
-                Cześć, {userName}
+                Witaj, {userName || 'użytkowniku'}!
               </span>
-              <form action="/api/auth/logout" method="POST">
-                <Button type="submit" variant="outline">
-                  Wyloguj się
-                </Button>
-              </form>
+              <Button variant="outline" onClick={logout}>
+                Wyloguj się
+              </Button>
             </>
           ) : (
             <>
-              <Link href="/login">
+              <Link to="/login">
                 <Button variant="ghost">Zaloguj się</Button>
               </Link>
-              <Link href="/register">
+              <Link to="/register">
                 <Button>Zarejestruj się</Button>
               </Link>
             </>
@@ -40,4 +41,4 @@ export const Navigation = ({ isAuthenticated, userName }: NavigationProps) => {
       </div>
     </nav>
   );
-}; 
+} 

@@ -1,20 +1,11 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import { Button } from "@/components/ui/button";
+import { App } from '../App';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Ensure all routes are handled by React Router
+export const prerender = false;
 ---
 
-<BaseLayout title="PackMeUp - Spakuj się mądrze">
-  <main class="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-    <h1 class="text-4xl font-bold mb-4 text-center">
-      PackMeUp
-    </h1>
-    <p class="text-xl text-muted-foreground mb-8 text-center">
-      Spakuj się mądrze na każdą podróż
-    </p>
-    <a href="/new-trip">
-      <Button size="lg" client:load>
-        Stwórz nową podróż
-      </Button>
-    </a>
-  </main>
-</BaseLayout>
+<BaseLayout>
+  <App client:only="react" />
+</BaseLayout> 

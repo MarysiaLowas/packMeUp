@@ -7,14 +7,29 @@ import node from "@astrojs/node";
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  integrations: [react(), sitemap()],
+  integrations: [
+    react({
+      include: ['**/react/*', '**/components/**/*.{jsx,tsx}'],
+      experimentalReactChildren: true
+    }), 
+    sitemap()
+  ],
   server: {
-    port: 3000
+    port: 3000,
+    host: true
   },
   adapter: node({
     mode: "standalone",
   }),
   experimental: {
     session: true
+  },
+  vite: {
+    ssr: {
+      noExternal: ['react-router-dom']
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-router-dom']
+    }
   }
 });
