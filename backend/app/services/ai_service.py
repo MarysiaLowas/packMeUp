@@ -28,27 +28,17 @@ class AIService:
         
         # Set up system message for packing list generation
         self.openrouter.set_system_message("""
-You are an expert travel consultant specializing in creating personalized packing lists.
-Your task is to generate a detailed packing list based on the trip details provided.
-Consider factors like:
-- Duration of stay
-- Number of travelers (adults and children)
-- Destination and season
-- Planned activities
-- Available luggage capacity
-- Accommodation type and catering options
-- Mode of transport
+Jesteś ekspertem ds. podróży, specjalizującym się w tworzeniu spersonalizowanych list rzeczy do spakowania.
+Twoim zadaniem jest wygenerowanie szczegółowej listy rzeczy do spakowania na podstawie dostarczonych szczegółów podróży.
 
-For each item, provide:
-- name: Clear and specific item name (string)
-- quantity: Number needed based on trip duration and travelers (integer, use 1 for variable quantities)
-- category: One of [Clothing, Electronics, Toiletries, Documents, Accessories, Health, Entertainment] (string)
-- weight: Approximate weight in kg (number, optional)
-
-Format your response as a JSON array of items, each with the above properties.
-Ensure all quantities are integers and weights are numbers.
-Ensure the total weight stays within luggage limits if specified.
-Do not wrap the array in any additional object.
+Przygotowując listę, weź pod uwagę następujące kluczowe aspekty, aby dostosować ją jak najlepiej:
+- Czas trwania pobytu: Dłuższe wyjazdy wymagają więcej ubrań (zwłaszcza bielizny i skarpetek) oraz potencjalnie większych opakowań kosmetyków lub zapasów leków.
+- Liczba podróżujących (dorośli i dzieci): Dostosuj liczbę przedmiotów wspólnych (np. apteczka, ładowarki) oraz indywidualnych (ubrania, szczoteczki do zębów). Zwróć szczególną uwagę na potrzeby dzieci w określonym wieku.
+- Cel podróży i pora roku: Klimat i pogoda w miejscu docelowym determinują rodzaj odzieży (np. ciepłe kurtki zimą, stroje kąpielowe latem, odzież przeciwdeszczowa). Weź pod uwagę specyfikę kulturową miejsca docelowego (np. odpowiedni strój do miejsc kultu).
+- Planowane aktywności: Specjalistyczny sprzęt może być potrzebny do konkretnych działań (np. buty trekkingowe, sprzęt do snorkelingu, elegancki strój na formalne okazje).
+- Dostępna pojemność bagażu: Jeśli podano ograniczenia, lista musi być zoptymalizowana pod kątem wagi i objętości. Priorytetyzuj niezbędne rzeczy.
+- Rodzaj zakwaterowania i opcje wyżywienia (wynikające z `{{accommodation}}`): Np. w hotelu z zapewnionymi ręcznikami i kosmetykami, można ich nie zabierać. Apartament z kuchnią może sugerować zabranie podstawowych przypraw lub kawy/herbaty, jeśli użytkownik chce samodzielnie przygotowywać posiłki.
+- Środek transportu (wynikający z `{{transport}}`): Podróż samochodem daje większą elastyczność bagażową niż samolotem z restrykcyjnymi limitami. Weź to pod uwagę przy sugerowaniu ilości i rodzaju przedmiotów.
 """)
         
         # Set response format schema
@@ -141,24 +131,39 @@ Do not wrap the array in any additional object.
         
         # Build prompt with trip details
         prompt = f"""
-Generate a packing list for a trip with the following details:
-- Destination: {trip.destination}
-- Duration: {trip.duration_days} days
-- Number of adults: {trip.num_adults}
-- Children ages: {trip.children_ages if trip.children_ages else 'None'}
-- Accommodation: {trip.accommodation if trip.accommodation else 'Not specified'}
-- Transport: {trip.transport if trip.transport else 'Not specified'}
-- Activities: {', '.join(trip.activities) if trip.activities else 'Not specified'}
-- Season: {trip.season if trip.season else 'Not specified'}
+Wygeneruj listę rzeczy do spakowania na podróż o następujących szczegółach:
+- Cel podróży: {trip.destination}
+- Czas trwania: {trip.duration_days} dni
+- Liczba dorosłych: {trip.num_adults}
+- Wiek dzieci: {trip.children_ages if trip.children_ages else 'None'} (lista wieków dzieci, np. [], [2, 5], jeśli brak dzieci, lista będzie pusta)
+- Zakwaterowanie: {trip.accommodation if trip.accommodation else 'Not specified'} (np. hotel, apartament z kuchnią, kemping)
+- Transport: {trip.transport if trip.transport else 'Not specified'}(np. samolot, samochód, pociąg)
+- Aktywności: {', '.join(trip.activities) if trip.activities else 'Not specified'} (np. plażowanie, zwiedzanie miasta, trekking, spotkania biznesowe)
+- Pora roku: {trip.season if trip.season else 'Not specified'} (np. lato, zima, wiosna, jesień)
+
+Dla każdego przedmiotu na liście, zwróć obiekt JSON z następującymi **kluczami w języku angielskim**:
+- `name`: (string) Jasna i konkretna **nazwa przedmiotu w języku polskim**.
+- `quantity`: (integer) Wymagana liczba sztuk, obliczona na podstawie czasu trwania podróży i liczby podróżujących. Dla przedmiotów, których dokładna ilość jest trudna do ustalenia z góry (np. krem z filtrem, pasta do zębów, płyn pod prysznic) lub których ilość jest "jedna sztuka zbiorcza" (np. apteczka, kosmetyczka), użyj wartości 1. Dostosuj ilość ubrań (np. skarpetki, bielizna) do długości wyjazdu oraz dostępności prania.
+- `category`: (string) Jedna z predefiniowanych **polskich nazw kategorii**: "Odzież", "Elektronika", "Kosmetyki", "Dokumenty", "Akcesoria", "Zdrowie", "Rozrywka".
+- `weight`: (number, opcjonalnie) Przybliżona waga w kg. Staraj się podać dla jak największej liczby przedmiotów, zwłaszcza jeśli są ograniczenia bagażowe. Użyj kropki jako separatora dziesiętnego.
+
+Przykład pojedynczego obiektu JSON:
+`{"name": "Pasta do zębów", "quantity": 1, "category": "Kosmetyki", "weight": 0.1}`
+
+Sformatuj odpowiedź jako tablicę JSON tych obiektów.
+Upewnij się, że wszystkie wartości dla klucza `quantity` są liczbami całkowitymi, a dla klucza `weight` liczbami (mogą być dziesiętne).
+Upewnij się, że całkowita waga nie przekracza limitów bagażu, jeśli zostały określone.
+Nie umieszczaj tablicy JSON w żadnym dodatkowym obiekcie nadrzędnym.
+Klucze w obiektach JSON muszą być w języku angielskim, a **wartości tekstowe (takie jak wartości dla kluczy `name` i `category`) muszą być w języku polskim.**
 """
 
         if trip.available_luggage:
-            prompt += "\nLuggage constraints:\n"
+            prompt += "\nOgraniczenia bagażowe:\n"
             for luggage in trip.available_luggage:
                 if luggage.get('max_weight'):
-                    prompt += f"- Maximum weight: {luggage['max_weight']} kg\n"
+                    prompt += f"- Maksymalna waga: {luggage['max_weight']} kg\n"
                 if luggage.get('dimensions'):
-                    prompt += f"- Dimensions: {luggage['dimensions']}\n"
+                    prompt += f"- Wymiary: {luggage['dimensions']}\n"
         
         # Set user message
         ai_service.openrouter.set_user_message(prompt)
