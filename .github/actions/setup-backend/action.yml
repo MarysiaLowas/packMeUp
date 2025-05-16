@@ -34,6 +34,10 @@ runs:
         echo "Modified pyproject.toml content:"
         cat pyproject.toml
         
+        # Create a virtual environment
+        echo "Creating virtual environment"
+        uv venv
+        
         # Install fastapi-sqlalchemy from PyPI
         echo "Installing fastapi-sqlalchemy from PyPI"
         uv pip install fastapi-sqlalchemy==0.2.1
