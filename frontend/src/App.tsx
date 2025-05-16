@@ -6,7 +6,7 @@ import {
   Navigate,
   useParams,
 } from "react-router-dom";
-import { AuthProvider } from "@/lib/providers/AuthProvider";
+import { AuthProvider } from "./lib/providers/AuthProvider";
 import { Layout } from "./components/layout/Layout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { ThemeProvider } from "./components/ui/theme-provider";
