@@ -55,7 +55,7 @@ Przygotowując listę, weź pod uwagę następujące kluczowe aspekty, aby dosto
         self.openrouter.set_model_parameters(
             {
                 "temperature": 0.1,  # Lower temperature for more consistent JSON
-                "max_tokens": 1024,  # Increased token limit for complete lists
+                "max_tokens": 2048,  # Increased token limit for complete lists
                 "top_p": 0.9,  # High top_p for focused but slightly creative outputs
                 "frequency_penalty": 0.1,  # Slight penalty to avoid repetition
             }
@@ -175,19 +175,9 @@ Przygotowując listę, weź pod uwagę następujące kluczowe aspekty, aby dosto
         # Create instance to access OpenRouter
         ai_service = AIService()
 
-        # Log trip details for debugging
-        logger.debug(f"AIService.generate_packing_list called for trip ID: {trip.id}")
-        logger.debug(f"Trip destination: '{trip.destination}'")
-        logger.debug(f"Trip transport: '{trip.transport}'")
-        logger.debug(f"Trip accommodation: '{trip.accommodation}'")
-        logger.debug(
-            f"Trip available_luggage type: {type(trip.available_luggage).__name__}"
-        )
-
         # Safely log trip.children_ages
         try:
             children_str = str(trip.children_ages) if trip.children_ages else "None"
-            logger.debug(f"Trip children_ages: {children_str}")
         except Exception as e:
             logger.warning(f"Error logging children_ages: {str(e)}")
 
@@ -198,7 +188,6 @@ Przygotowując listę, weź pod uwagę następujące kluczowe aspekty, aby dosto
                 if trip.activities and isinstance(trip.activities, list)
                 else "Not specified"
             )
-            logger.debug(f"Trip activities: {activities_str}")
         except Exception as e:
             logger.warning(f"Error joining activities: {str(e)}")
 
@@ -367,7 +356,6 @@ Przykład: {"name": "Pasta do zębów", "quantity": 1, "category": "Kosmetyki", 
         try:
             logger.debug("Setting user message on OpenRouter client")
             ai_service.openrouter.set_user_message(prompt)
-            logger.debug("User message set successfully")
         except Exception as e:
             logger.error(f"Error setting user message: {str(e)}")
             raise ValueError(f"Failed to set user message: {str(e)}")
