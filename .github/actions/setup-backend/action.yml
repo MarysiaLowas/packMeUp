@@ -1,0 +1,18 @@
+name: "Setup Backend Environment"
+description: "Installs Python, uv and dependencies for the backend"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: 'backend/.python-version'
+        cache: 'pip'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+    
+    - name: Install dependencies
+      run: cd backend && uv sync --locked --all-extras --dev
+      shell: bash 
