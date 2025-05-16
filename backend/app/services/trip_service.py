@@ -266,8 +266,28 @@ class TripService:
 
                 # Convert to DTO and return
                 logger.debug("Converting result to DTO")
+                # Calculate items_count and packed_items_count
+                items_count = len(result.items) if hasattr(result, "items") else 0
+                packed_items_count = (
+                    sum(1 for item in result.items if item.is_packed)
+                    if hasattr(result, "items")
+                    else 0
+                )
+
+                # Create response data with computed fields
+                response_data = {
+                    "id": result.id,
+                    "name": result.name,
+                    "trip_id": result.trip_id,
+                    "items": result.items,
+                    "created_at": result.created_at,
+                    "updated_at": result.updated_at,
+                    "items_count": items_count,
+                    "packed_items_count": packed_items_count,
+                }
+
                 dto = GeneratePackingListResponseDTO.model_validate(
-                    result, from_attributes=True
+                    response_data, from_attributes=True
                 )
                 logger.debug("Successfully generated packing list")
                 return dto

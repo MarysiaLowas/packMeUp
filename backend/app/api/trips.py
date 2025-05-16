@@ -2,11 +2,12 @@ from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Body, HTTPException, Path, Query, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from app.api.auth import get_current_user_id
 from app.api.dto import (
     GeneratePackingListResponseDTO,
     LuggageModel,
@@ -199,6 +200,7 @@ def safe_parse_luggage(luggage_data):
 )
 async def create_trip(
     command: CreateTripCommand,
+    current_user_id: UUID = Depends(get_current_user_id),
 ) -> TripDTO:
     """
     Create a new trip with the provided details.
@@ -211,8 +213,6 @@ async def create_trip(
 
     All dates are in ISO format (YYYY-MM-DD).
     """
-    # TODO: Add proper authentication and user handling
-    mock_user_id = UUID("12345678-1234-5678-1234-567812345678")
 
     try:
         trip_data = {
@@ -233,7 +233,7 @@ async def create_trip(
         }
 
         trip = await TripService.create_trip(
-            user_id=mock_user_id,
+            user_id=current_user_id,
             destination=command.destination,
             duration_days=command.duration_days,
             start_date=command.start_date,
@@ -314,6 +314,7 @@ async def list_trips(
         description="Sort field (created_at, destination, start_date, duration_days)",
         example="created_at",
     ),
+    current_user_id: UUID = Depends(get_current_user_id),
 ) -> ListTripsResponseDTO:
     """
     List trips for the current user with pagination and sorting options.
@@ -329,12 +330,10 @@ async def list_trips(
     - start_date: Sort by trip start date
     - duration_days: Sort by trip duration
     """
-    # TODO: Add proper authentication and user handling
-    mock_user_id = UUID("12345678-1234-5678-1234-567812345678")
 
     try:
         trips, total = await TripService.list_trips(
-            user_id=mock_user_id, limit=limit, offset=offset, sort=sort
+            user_id=current_user_id, limit=limit, offset=offset, sort=sort
         )
         # Convert Trip objects to TripDTO objects
         trip_dtos = [TripDTO.model_validate(trip) for trip in trips]
@@ -380,6 +379,7 @@ async def get_trip(
         description="The ID of the trip to retrieve",
         example="123e4567-e89b-12d3-a456-426614174000",
     ),
+    current_user_id: UUID = Depends(get_current_user_id),
 ) -> TripDTO:
     """
     Retrieve detailed information about a specific trip.
@@ -393,11 +393,9 @@ async def get_trip(
 
     If the trip doesn't exist or belongs to another user, a 404 error is returned.
     """
-    # TODO: Add proper authentication and user handling
-    mock_user_id = UUID("12345678-1234-5678-1234-567812345678")
 
     try:
-        trip = await TripService.get_trip(trip_id, user_id=mock_user_id)
+        trip = await TripService.get_trip(trip_id, user_id=current_user_id)
         if not trip:
             raise HTTPException(status_code=404, detail="Trip not found")
 
@@ -469,6 +467,7 @@ async def generate_packing_list(
     trip_id: UUID = Path(
         ..., description="The ID of the trip to generate a packing list for"
     ),
+    current_user_id: UUID = Depends(get_current_user_id),
     command: Optional[GeneratePackingListCommand] = None,
 ) -> GeneratePackingListResponseDTO:
     """
@@ -487,19 +486,17 @@ async def generate_packing_list(
     - Available luggage specifications
     - Season and transport mode
     """
-    # TODO: Add proper authentication and user handling
-    mock_user_id = UUID("12345678-1234-5678-1234-567812345678")
 
     try:
         # Validate trip exists and belongs to user
-        trip = await TripService.get_trip(trip_id, user_id=mock_user_id)
+        trip = await TripService.get_trip(trip_id, user_id=current_user_id)
         if not trip:
             raise HTTPException(status_code=404, detail="Trip not found")
 
         # Generate packing list using AI service
         return await TripService.generate_packing_list(
             trip=trip,
-            user_id=mock_user_id,
+            user_id=current_user_id,
             include_special_lists=command.include_special_lists if command else None,
             exclude_categories=command.exclude_categories if command else None,
         )

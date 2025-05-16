@@ -3,7 +3,9 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
-from sqlalchemy import select
+from fastapi_sqlalchemy import async_db as db
+from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import select, update
 from sqlalchemy.orm import selectinload
 
 from app.api.auth import get_current_user_id
@@ -15,6 +17,12 @@ from app.api.dto import (
 from app.models import GeneratedList, GeneratedListItem
 
 router = APIRouter(prefix="/api/generated-lists", tags=["generated-lists"])
+
+
+class UpdateListItemDTO(BaseModel):
+    is_packed: bool = Field(..., alias="isPacked")
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
 @router.get(
@@ -84,8 +92,19 @@ async def list_generated_lists(
 ) -> PaginatedGeneratedListResponse:
     """Get all packing lists for the current user with pagination, filtering, and sorting."""
     try:
+        print(
+            f"[DEBUG] Input parameters: page={page}, page_size={page_size}, search={search}, "
+            f"trip_id={trip_id}, sort_field={sort_field}, sort_order={sort_order}, "
+            f"current_user_id={current_user_id}"
+        )
+
         # Get all lists for the user
-        lists = await GeneratedList.select(user_id=current_user_id)
+        query = (
+            select(GeneratedList)
+            .where(GeneratedList.user_id == current_user_id)
+            .options(selectinload(GeneratedList.items))
+        )
+        lists = (await db.session.execute(query)).scalars().all()
 
         # Filter lists
         filtered_lists = lists
@@ -164,7 +183,7 @@ async def list_generated_lists(
 async def update_list_item(
     list_id: UUID = Path(..., description="The ID of the generated list"),
     item_id: UUID = Path(..., description="The ID of the item to update"),
-    is_packed: bool = Body(..., embed=True),
+    update_data: UpdateListItemDTO = Body(...),
 ) -> None:
     """Update a packing list item's packed status."""
     try:
@@ -179,10 +198,17 @@ async def update_list_item(
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
 
-        # Update the item
-        await GeneratedListItem.merge(["id"], {"id": item_id, "is_packed": is_packed})
+        # Update the item using SQLAlchemy update
+        update_stmt = (
+            update(GeneratedListItem)
+            .where(GeneratedListItem.id == item_id)
+            .values(is_packed=update_data.is_packed)
+        )
+        await db.session.execute(update_stmt)
+        await db.session.commit()
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        print(f"[DEBUG] Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to update item") from e
