@@ -113,7 +113,7 @@ ignore = [
 convention = "google"
 
 [tool.uv.sources]
-fastapi-sqlalchemy = { path = "../../../fastapi-sqlalchemy/dist/FastAPI_SQLAlchemy-0.2.1.post1-py3-none-any.whl" }
+fastapi-sqlalchemy = { path = "./FastAPI_SQLAlchemy-0.2.1.post1-py3-none-any.whl" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

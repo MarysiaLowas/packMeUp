@@ -8,7 +8,6 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version-file: 'backend/.python-version'
-        cache: 'uv'
     
     - name: Install uv
       uses: astral-sh/setup-uv@v6
@@ -17,30 +16,10 @@ runs:
       shell: bash
       run: |
         cd backend
-        echo "Backend directory structure:"
-        ls -la
-        
-        echo "Original pyproject.toml content:"
-        cat pyproject.toml
-        
-        # Create CI version of pyproject.toml by commenting out the problematic lines
-        awk '
-        /\[tool\.uv\.sources\]/ {print "# " $0; next}
-        /fastapi-sqlalchemy = \{ path =/ {print "# " $0; next}
-        {print}
-        ' pyproject.toml > pyproject.toml.ci
-        mv pyproject.toml.ci pyproject.toml
-        
-        echo "Modified pyproject.toml content:"
-        cat pyproject.toml
         
         # Create a virtual environment
         echo "Creating virtual environment"
         uv venv
-        
-        # Install fastapi-sqlalchemy from PyPI
-        echo "Installing fastapi-sqlalchemy from PyPI"
-        uv pip install fastapi-sqlalchemy==0.2.1
     
     - name: Install dependencies
       run: cd backend && uv sync --dev
