@@ -65,4 +65,4 @@ npm run test:e2e:ui
 3. **Isolation** - Tests should not depend on each other
 4. **Meaningful Assertions** - Test behavior, not implementation
 5. **Mocks and Stubs** - Use them to isolate units of code
-6. **Coverage** - Aim for meaningful coverage, not just numbers 
+6. **Coverage** - Aim for meaningful coverage, not just numbers

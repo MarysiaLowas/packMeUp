@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
 
 from fastapi import HTTPException
-from fastapi_sqlalchemy import async_db as db
+from fastapi_sqlalchemy import async_db as db  # type: ignore
 from sqlalchemy import delete, exists, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import Select

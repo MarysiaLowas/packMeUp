@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import node from "@astrojs/node";
+import path from "path";
 
 // https://astro.build/config
 export default defineConfig({
@@ -30,6 +31,11 @@ export default defineConfig({
     },
     optimizeDeps: {
       include: ["react", "react-dom", "react-router-dom"],
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve("./src"),
+      },
     },
   },
 });
