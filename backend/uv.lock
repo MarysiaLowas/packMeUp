@@ -684,7 +684,7 @@ standard = [
 [[package]]
 name = "fastapi-sqlalchemy"
 version = "0.2.1.post1"
-source = { path = "../../../fastapi-sqlalchemy/dist/FastAPI_SQLAlchemy-0.2.1.post1-py3-none-any.whl" }
+source = { path = "FastAPI_SQLAlchemy-0.2.1.post1-py3-none-any.whl" }
 dependencies = [
     { name = "sqlalchemy" },
     { name = "starlette" },
@@ -1275,7 +1275,7 @@ requires-dist = [
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "black", specifier = ">=25.1.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" },
-    { name = "fastapi-sqlalchemy", path = "../../../fastapi-sqlalchemy/dist/FastAPI_SQLAlchemy-0.2.1.post1-py3-none-any.whl" },
+    { name = "fastapi-sqlalchemy", path = "FastAPI_SQLAlchemy-0.2.1.post1-py3-none-any.whl" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "isort", specifier = ">=6.0.1" },
     { name = "mypy", specifier = ">=1.15.0" },

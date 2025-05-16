@@ -4,8 +4,8 @@ import asyncio
 from typing import Optional
 from uuid import UUID
 
-from fastapi_sqlalchemy import AsyncDBSessionMiddleware  # type: ignore
-from fastapi_sqlalchemy import async_db as db  # type: ignore
+from fastapi_sqlalchemy import AsyncDBSessionMiddleware
+from fastapi_sqlalchemy import async_db as db
 from passlib.context import CryptContext  # type: ignore
 
 from app import settings  # an object to provide global access to a database session

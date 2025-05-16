@@ -14,7 +14,7 @@ load_dotenv(dotenv_path=dotenv_path, override=True)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_sqlalchemy import AsyncDBSessionMiddleware  # type: ignore
+from fastapi_sqlalchemy import AsyncDBSessionMiddleware
 
 from app import settings  # an object to provide global access to a database session
 from app.api import auth

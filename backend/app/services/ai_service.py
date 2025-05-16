@@ -307,12 +307,10 @@ Przykład: {"name": "Pasta do zębów", "quantity": 1, "category": "Kosmetyki", 
                 prompt += "\nOgraniczenia bagażowe:\n"
 
                 # Ensure we're dealing with a list or convert to list if it's a single item
-                luggage_items = trip.available_luggage
-                if not isinstance(luggage_items, list):
-                    logger.debug(
-                        f"Converting non-list luggage to list: {type(luggage_items).__name__}"
-                    )
-                    luggage_items = [luggage_items]
+                if not isinstance(trip.available_luggage, list):
+                    luggage_items = [trip.available_luggage]
+                else:
+                    luggage_items = trip.available_luggage
 
                 for i, luggage in enumerate(luggage_items):
                     logger.debug(
@@ -542,34 +540,35 @@ Przykład: {"name": "Pasta do zębów", "quantity": 1, "category": "Kosmetyki", 
             except Exception as e:
                 logger.error(f"Error during quantity adjustment: {str(e)}")
 
+            # TODO: Add items from special lists if provided
             # Add items from special lists if provided
-            if special_lists:
-                try:
-                    logger.debug(
-                        f"Adding items from {len(special_lists)} special lists"
-                    )
-                    for special_list in special_lists:
-                        logger.debug(f"Processing special list: {special_list.name}")
-                        for item in special_list.items:
-                            try:
-                                # Create a dictionary for the item
-                                special_item = {
-                                    "name": item.name,
-                                    "quantity": item.quantity,
-                                    "category": item.category,
-                                }
+            # if special_lists:
+            #     try:
+            #         logger.debug(
+            #             f"Adding items from {len(special_lists)} special lists"
+            #         )
+            #         for special_list in special_lists:
+            #             logger.debug(f"Processing special list: {special_list.name}")
+            #             for item in special_list.items:
+            #                 try:
+            #                     # Create a dictionary for the item
+            #                     special_item = {
+            #                         "name": item.name,
+            #                         "quantity": item.quantity,
+            #                         "category": item.category,
+            #                     }
 
-                                if item.weight:
-                                    special_item["weight"] = item.weight
+            #                     if item.weight:
+            #                         special_item["weight"] = item.weight
 
-                                logger.debug(
-                                    f"Adding special item: {special_item['name']}"
-                                )
-                                items.append(special_item)
-                            except Exception as e:
-                                logger.error(f"Error adding special item: {str(e)}")
-                except Exception as e:
-                    logger.error(f"Error processing special lists: {str(e)}")
+            #                     logger.debug(
+            #                         f"Adding special item: {special_item['name']}"
+            #                     )
+            #                     items.append(special_item)
+            #                 except Exception as e:
+            #                     logger.error(f"Error adding special item: {str(e)}")
+            #     except Exception as e:
+            #         logger.error(f"Error processing special lists: {str(e)}")
 
             # Exclude categories if provided
             if exclude_categories:

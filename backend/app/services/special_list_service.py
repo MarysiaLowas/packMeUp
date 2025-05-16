@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional, Tuple
 from uuid import UUID
 
-from fastapi_sqlalchemy import async_db as db  # type: ignore
+from fastapi_sqlalchemy import async_db as db
 from sqlalchemy import Column, ForeignKey, Table, insert, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload

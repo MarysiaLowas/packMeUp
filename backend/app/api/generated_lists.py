@@ -10,6 +10,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.auth import get_current_user_id
 from app.api.dto import (
+    GeneratedListItemDTO,
     GeneratedListSummaryDTO,
     GeneratePackingListResponseDTO,
     PaginatedGeneratedListResponse,
@@ -55,20 +56,29 @@ async def get_generated_list(
         # Count packed items
         packed_items = sum(1 for item in generated_list.items if item.is_packed)
 
-        # Create response with computed fields
-        response_data = {
-            "id": generated_list.id,
-            "name": generated_list.name,
-            "trip_id": generated_list.trip_id,
-            "items": generated_list.items,
-            "created_at": generated_list.created_at,
-            "updated_at": generated_list.updated_at,
-            "items_count": len(generated_list.items),
-            "packed_items_count": packed_items,
-        }
-
-        return GeneratePackingListResponseDTO(**response_data)
-
+        return GeneratePackingListResponseDTO(
+            id=generated_list.id,
+            name=generated_list.name,
+            tripId=generated_list.trip_id,
+            items=[
+                GeneratedListItemDTO(
+                    id=item.id,
+                    itemName=item.item_name,
+                    quantity=item.quantity,
+                    isPacked=item.is_packed,
+                    itemCategory=item.item_category,
+                    itemWeight=item.item_weight,
+                    itemDimensions=item.item_dimensions,
+                    createdAt=item.created_at,
+                    updatedAt=item.updated_at,
+                )
+                for item in generated_list.items
+            ],
+            createdAt=generated_list.created_at,
+            updatedAt=generated_list.updated_at,
+            itemsCount=len(generated_list.items),
+            packedItemsCount=packed_items,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -117,16 +127,22 @@ async def list_generated_lists(
 
         # Sort lists
         if sort_field == "name":
-            filtered_lists.sort(
-                key=lambda x: x.name, reverse=sort_order.lower() == "desc"
+            filtered_lists = sorted(
+                filtered_lists,
+                key=lambda x: x.name,
+                reverse=sort_order.lower() == "desc",
             )
         elif sort_field == "trip_id":
-            filtered_lists.sort(
-                key=lambda x: x.trip_id, reverse=sort_order.lower() == "desc"
+            filtered_lists = sorted(
+                filtered_lists,
+                key=lambda x: x.trip_id,
+                reverse=sort_order.lower() == "desc",
             )
         else:  # default to created_at
-            filtered_lists.sort(
-                key=lambda x: x.created_at, reverse=sort_order.lower() == "desc"
+            filtered_lists = sorted(
+                filtered_lists,
+                key=lambda x: x.created_at,
+                reverse=sort_order.lower() == "desc",
             )
 
         # Calculate total and pages

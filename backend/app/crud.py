@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
 
 from fastapi import HTTPException
-from fastapi_sqlalchemy import async_db as db  # type: ignore
+from fastapi_sqlalchemy import async_db as db
 from sqlalchemy import delete, exists, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import Select
@@ -14,7 +14,7 @@ class CrudMixin:
     @classmethod
     async def exists(cls: Type[T], **kwargs: Any) -> bool:
         stmt = exists(select(cls).filter_by(**kwargs)).select()
-        obj_exists: bool = await db.session.scalar(stmt)
+        obj_exists = await db.session.scalar(stmt)
         if not obj_exists:
             raise HTTPException(
                 status_code=HTTP_404_NOT_FOUND,
@@ -50,7 +50,7 @@ class CrudMixin:
                 detail=f"{cls.__name__} matching {kwargs} doesn't exist",
             )
 
-        return cast(T, obj)
+        return obj
 
     @classmethod
     async def select(cls: Type[T], **kwargs: Any) -> List[T]:
