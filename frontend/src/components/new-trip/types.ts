@@ -1,5 +1,3 @@
-import type { CreateTripCommand, LuggageDTO } from "@/types";
-
 export interface CreateTripFormShape {
   destination: string;
   startDate?: string;

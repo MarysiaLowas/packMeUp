@@ -43,10 +43,11 @@ Input.displayName = "Input";
 // Create FormLabel component for consistent styling
 interface FormLabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
   variant?: "default" | "primary" | "secondary" | "accent";
+  htmlFor?: string;
 }
 
 const FormLabel = React.forwardRef<HTMLLabelElement, FormLabelProps>(
-  ({ className, variant = "default", ...props }, ref) => {
+  ({ className, variant = "default", htmlFor, ...props }, ref) => {
     const variantClasses = {
       default: "after:bg-brandGreen",
       primary: "after:bg-brandGreen",
@@ -57,6 +58,7 @@ const FormLabel = React.forwardRef<HTMLLabelElement, FormLabelProps>(
     return (
       <label
         ref={ref}
+        htmlFor={htmlFor}
         className={cn(
           "font-medium text-grayPurple relative inline-block mb-2",
           "after:absolute after:left-0 after:bottom-[-2px] after:w-6 after:h-0.5 after:rounded-full",

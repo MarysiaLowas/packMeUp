@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -13,7 +13,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  Card,
   CardContent,
   CardHeader,
   CardTitle,
@@ -36,7 +35,6 @@ type LoginFormShape = z.infer<typeof loginFormSchema>;
 const LoginForm = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const { login, isLoading } = useAuth();
-  const navigate = useNavigate();
 
   const form = useForm<LoginFormShape>({
     resolver: zodResolver(loginFormSchema),

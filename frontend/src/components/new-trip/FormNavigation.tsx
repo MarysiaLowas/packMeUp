@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import type { UseFormReturn } from "react-hook-form";
 
 interface FormNavigationProps {
   currentStep: number;

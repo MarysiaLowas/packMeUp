@@ -10,12 +10,12 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import type { CreateTripFormShape } from "./types";
 
-type LuggageItem = {
+interface LuggageItem {
   maxWeight?: number;
   width?: number;
   height?: number;
   depth?: number;
-};
+}
 
 export const Step3Luggage = () => {
   const form = useFormContext<CreateTripFormShape>();

@@ -168,11 +168,11 @@ export interface SpecialListItemDTO {
 }
 
 export interface SpecialListDetailDTO extends SpecialListDTO {
-  items: Array<{
+  items: {
     itemId: string;
     quantity: number;
     item: ItemDTO;
-  }>;
+  }[];
 }
 
 export interface AddItemToSpecialListCommand {

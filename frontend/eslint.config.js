@@ -22,7 +22,7 @@ const baseConfig = tseslint.config({
     tseslint.configs.stylistic,
   ],
   rules: {
-    "no-console": "warn",
+    "no-console": "off",
     "no-unused-vars": "off",
   },
 });
@@ -57,11 +57,15 @@ const reactConfig = tseslint.config({
     ...eslintPluginReactHooks.configs.recommended.rules,
     "react/react-in-jsx-scope": "off",
     "react-compiler/react-compiler": "error",
+    "react/prop-types": "off",
   },
 });
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  {
+    ignores: ["**/*.astro"],
+  },
   baseConfig,
   jsxA11yConfig,
   reactConfig,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type {
   GeneratePackingListResponseDTO,
@@ -15,11 +15,7 @@ export function PackingList({ listId }: PackingListProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchList();
-  }, [listId]);
-
-  const fetchList = async () => {
+  const fetchList = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -35,7 +31,11 @@ export function PackingList({ listId }: PackingListProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [listId]);
+
+  useEffect(() => {
+    fetchList();
+  }, [fetchList]);
 
   const handleItemCheck = async (
     item: GeneratedListItemDTO,
@@ -57,6 +57,7 @@ export function PackingList({ listId }: PackingListProps) {
         isPacked: checked,
       });
     } catch (err) {
+      console.error("Error updating item:", err);
       // Revert on error
       setList((prev) => {
         if (!prev) return prev;

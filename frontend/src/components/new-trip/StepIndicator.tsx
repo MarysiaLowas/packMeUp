@@ -2,13 +2,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface StepIndicatorProps {
   currentStep: number;
-  totalSteps: number;
 }
 
-export const StepIndicator = ({
-  currentStep,
-  totalSteps,
-}: StepIndicatorProps) => {
+export const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
   const steps = [
     { value: "1", label: "Podstawowe informacje" },
     { value: "2", label: "Preferencje" },
