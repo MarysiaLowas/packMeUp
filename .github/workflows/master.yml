@@ -129,7 +129,6 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
-          JWT_SECRET_KEY: very-secret-key
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -140,6 +139,7 @@ jobs:
       - name: Run backend tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          JWT_SECRET_KEY: very-secret-key
         run: cd backend && uv run pytest tests -v
 
   # deploy:
