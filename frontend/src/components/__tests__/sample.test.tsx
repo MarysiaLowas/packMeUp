@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import React from 'react';
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import React from "react";
 
 // Simple component to test
 const Counter = () => {
@@ -13,19 +13,19 @@ const Counter = () => {
   );
 };
 
-describe('Counter Component', () => {
-  it('renders with initial count of 0', () => {
+describe("Counter Component", () => {
+  it("renders with initial count of 0", () => {
     render(<Counter />);
-    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId("count")).toHaveTextContent("0");
   });
 
-  it('increments when button is clicked', () => {
+  it("increments when button is clicked", () => {
     render(<Counter />);
-    fireEvent.click(screen.getByRole('button', { name: /increment/i }));
-    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    fireEvent.click(screen.getByRole("button", { name: /increment/i }));
+    expect(screen.getByTestId("count")).toHaveTextContent("1");
   });
 
-  it('demonstrates how to use mocks', () => {
+  it("demonstrates how to use mocks", () => {
     // Example of mocking a function
     const mockFn = vi.fn();
     mockFn();
@@ -34,10 +34,10 @@ describe('Counter Component', () => {
 });
 
 // Example of how to test components that use hooks
-describe('Testing Patterns', () => {
-  it('demonstrates how to test async operations', async () => {
-    const asyncMock = vi.fn().mockResolvedValue('result');
-    await expect(asyncMock()).resolves.toBe('result');
+describe("Testing Patterns", () => {
+  it("demonstrates how to test async operations", async () => {
+    const asyncMock = vi.fn().mockResolvedValue("result");
+    await expect(asyncMock()).resolves.toBe("result");
     expect(asyncMock).toHaveBeenCalledTimes(1);
   });
-}); 
+});

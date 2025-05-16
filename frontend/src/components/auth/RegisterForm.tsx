@@ -1,29 +1,46 @@
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/lib/hooks/useAuth";
 
-const registerFormSchema = z.object({
-  email: z.string().email('Wprowadź poprawny adres email'),
-  first_name: z.string()
-    .min(2, 'Imię musi mieć minimum 2 znaki')
-    .max(50, 'Imię nie może być dłuższe niż 50 znaków'),
-  password: z.string()
-    .min(8, 'Hasło musi mieć minimum 8 znaków')
-    .regex(/[A-Z]/, 'Hasło musi zawierać przynajmniej jedną wielką literę')
-    .regex(/[0-9]/, 'Hasło musi zawierać przynajmniej jedną cyfrę'),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Hasła muszą być takie same",
-  path: ["confirmPassword"],
-});
+const registerFormSchema = z
+  .object({
+    email: z.string().email("Wprowadź poprawny adres email"),
+    first_name: z
+      .string()
+      .min(2, "Imię musi mieć minimum 2 znaki")
+      .max(50, "Imię nie może być dłuższe niż 50 znaków"),
+    password: z
+      .string()
+      .min(8, "Hasło musi mieć minimum 8 znaków")
+      .regex(/[A-Z]/, "Hasło musi zawierać przynajmniej jedną wielką literę")
+      .regex(/[0-9]/, "Hasło musi zawierać przynajmniej jedną cyfrę"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Hasła muszą być takie same",
+    path: ["confirmPassword"],
+  });
 
 type RegisterFormShape = z.infer<typeof registerFormSchema>;
 
@@ -34,16 +51,16 @@ const RegisterForm = () => {
   const form = useForm<RegisterFormShape>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
-      email: '',
-      first_name: '',
-      password: '',
-      confirmPassword: '',
+      email: "",
+      first_name: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
   const onSubmit = async (data: RegisterFormShape) => {
     setApiError(null);
-    
+
     try {
       await register({
         email: data.email,
@@ -52,14 +69,20 @@ const RegisterForm = () => {
       });
       // Nawigacja jest teraz obsługiwana przez AuthProvider
     } catch (error) {
-      setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas rejestracji');
+      setApiError(
+        error instanceof Error
+          ? error.message
+          : "Wystąpił błąd podczas rejestracji",
+      );
     }
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Rejestracja</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">
+          Rejestracja
+        </CardTitle>
         <CardDescription className="text-center">
           Utwórz nowe konto, aby korzystać z aplikacji
         </CardDescription>
@@ -74,10 +97,10 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="email" 
-                      placeholder="twoj@email.com" 
-                      {...field} 
+                    <Input
+                      type="email"
+                      placeholder="twoj@email.com"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -92,11 +115,7 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Imię</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="text" 
-                      placeholder="Jan" 
-                      {...field} 
-                    />
+                    <Input type="text" placeholder="Jan" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,11 +129,7 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Hasło</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="••••••••" 
-                      {...field} 
-                    />
+                    <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,11 +143,7 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Potwierdź hasło</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="••••••••" 
-                      {...field} 
-                    />
+                    <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -147,13 +158,16 @@ const RegisterForm = () => {
 
             <div className="flex flex-col gap-4">
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Tworzenie konta...' : 'Zarejestruj się'}
+                {isLoading ? "Tworzenie konta..." : "Zarejestruj się"}
               </Button>
-              
+
               <div className="text-center">
                 <div className="text-sm">
-                  Masz już konto?{' '}
-                  <RouterLink to="/login" className="text-primary hover:underline">
+                  Masz już konto?{" "}
+                  <RouterLink
+                    to="/login"
+                    className="text-primary hover:underline"
+                  >
                     Zaloguj się
                   </RouterLink>
                 </div>
@@ -166,4 +180,4 @@ const RegisterForm = () => {
   );
 };
 
-export default RegisterForm; 
+export default RegisterForm;

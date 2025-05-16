@@ -1,6 +1,12 @@
 import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormLabel } from "@/components/ui/input";
 import type { CreateTripFormShape } from "./types";
@@ -45,7 +51,9 @@ export const Step2Preferences = () => {
     <div className="space-y-8">
       <div className="relative pb-3 after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-20 after:bg-gradient-to-r after:from-brandGreen after:to-brandLime after:rounded-full mb-6">
         <h2 className="text-2xl font-bold">Preferencje podróży</h2>
-        <p className="text-muted-foreground mt-1">Wybierz opcje dotyczące Twojej planowanej podróży</p>
+        <p className="text-muted-foreground mt-1">
+          Wybierz opcje dotyczące Twojej planowanej podróży
+        </p>
       </div>
 
       <FormField
@@ -62,7 +70,9 @@ export const Step2Preferences = () => {
               </FormControl>
               <SelectContent>
                 {ACCOMMODATION_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -84,7 +94,9 @@ export const Step2Preferences = () => {
               </FormControl>
               <SelectContent>
                 {TRANSPORT_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -106,7 +118,9 @@ export const Step2Preferences = () => {
               </FormControl>
               <SelectContent>
                 {SEASON_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -128,7 +142,10 @@ export const Step2Preferences = () => {
                 { id: "sightseeing", label: "Zwiedzanie" },
                 { id: "beach", label: "Plaża" },
               ].map((activity) => (
-                <div key={activity.id} className="flex items-center space-x-3 p-2 rounded-md border border-gray-100 hover:border-brandGreen/30 hover:bg-brandGreen/5 transition-colors">
+                <div
+                  key={activity.id}
+                  className="flex items-center space-x-3 p-2 rounded-md border border-gray-100 hover:border-brandGreen/30 hover:bg-brandGreen/5 transition-colors"
+                >
                   <Checkbox
                     checked={(field.value || []).includes(activity.id)}
                     onCheckedChange={(checked: boolean) => {
@@ -137,7 +154,7 @@ export const Step2Preferences = () => {
                         field.onChange([...currentActivities, activity.id]);
                       } else {
                         field.onChange(
-                          currentActivities.filter((id) => id !== activity.id)
+                          currentActivities.filter((id) => id !== activity.id),
                         );
                       }
                     }}
@@ -161,7 +178,10 @@ export const Step2Preferences = () => {
             <FormLabel variant="secondary">Opcje wyżywienia</FormLabel>
             <div className="space-y-3 pt-1">
               {CATERING_OPTIONS.map((option) => (
-                <div key={option.id} className="flex items-center space-x-3 p-2 rounded-md border border-gray-100 hover:border-brandLime/30 hover:bg-brandLime/5 transition-colors">
+                <div
+                  key={option.id}
+                  className="flex items-center space-x-3 p-2 rounded-md border border-gray-100 hover:border-brandLime/30 hover:bg-brandLime/5 transition-colors"
+                >
                   <Checkbox
                     checked={(field.value || []).includes(option.id)}
                     onCheckedChange={(checked) => {
@@ -169,7 +189,9 @@ export const Step2Preferences = () => {
                       if (checked) {
                         field.onChange([...currentValue, option.id]);
                       } else {
-                        field.onChange(currentValue.filter((id) => id !== option.id));
+                        field.onChange(
+                          currentValue.filter((id) => id !== option.id),
+                        );
                       }
                     }}
                     className="border-grayPurple/20 data-[state=checked]:bg-brandLime data-[state=checked]:border-brandLime"
@@ -185,4 +207,4 @@ export const Step2Preferences = () => {
       />
     </div>
   );
-}; 
+};

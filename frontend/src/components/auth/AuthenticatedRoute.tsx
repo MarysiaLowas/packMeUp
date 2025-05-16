@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import { AuthProvider } from '@/lib/providers/AuthProvider';
-import { ProtectedRoute } from './ProtectedRoute';
+import type { ReactNode } from "react";
+import { AuthProvider } from "@/lib/providers/AuthProvider";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 interface AuthenticatedRouteProps {
   children: ReactNode;
@@ -9,15 +9,15 @@ interface AuthenticatedRouteProps {
   publicRedirect?: string;
 }
 
-export function AuthenticatedRoute({ 
-  children, 
+export function AuthenticatedRoute({
+  children,
   requireAuth = true,
-  authRedirect = '/login',
-  publicRedirect = '/dashboard'
+  authRedirect = "/login",
+  publicRedirect = "/dashboard",
 }: AuthenticatedRouteProps) {
   return (
     <AuthProvider>
-      <ProtectedRoute 
+      <ProtectedRoute
         requireAuth={requireAuth}
         authRedirect={authRedirect}
         publicRedirect={publicRedirect}
@@ -26,4 +26,4 @@ export function AuthenticatedRoute({
       </ProtectedRoute>
     </AuthProvider>
   );
-} 
+}

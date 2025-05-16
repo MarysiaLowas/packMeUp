@@ -17,4 +17,4 @@ export interface CreateTripFormShape {
     height?: number;
     depth?: number;
   }[];
-} 
+}

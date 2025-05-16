@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ColorSwatchProps {
   color: string;
@@ -6,10 +6,10 @@ interface ColorSwatchProps {
   className?: string;
 }
 
-const ColorSwatch = ({ color, name, className = '' }: ColorSwatchProps) => (
+const ColorSwatch = ({ color, name, className = "" }: ColorSwatchProps) => (
   <div className="flex flex-col items-center">
-    <div 
-      className={`w-16 h-16 rounded-md shadow-md ${className}`} 
+    <div
+      className={`w-16 h-16 rounded-md shadow-md ${className}`}
       style={{ backgroundColor: color }}
     ></div>
     <span className="mt-2 text-sm font-medium">{name}</span>
@@ -55,37 +55,51 @@ export function ThemeGuide() {
 
           <div className="p-4 bg-card text-card-foreground border rounded-md shadow-sm">
             <h3 className="text-lg font-medium">Card Example</h3>
-            <p className="text-muted-foreground">This is a card with the new styling.</p>
+            <p className="text-muted-foreground">
+              This is a card with the new styling.
+            </p>
           </div>
 
           <div className="flex gap-2">
-            <div className="p-3 bg-success text-success-foreground rounded-md">Success</div>
-            <div className="p-3 bg-warning text-warning-foreground rounded-md">Warning</div>
-            <div className="p-3 bg-destructive text-destructive-foreground rounded-md">Error</div>
+            <div className="p-3 bg-success text-success-foreground rounded-md">
+              Success
+            </div>
+            <div className="p-3 bg-warning text-warning-foreground rounded-md">
+              Warning
+            </div>
+            <div className="p-3 bg-destructive text-destructive-foreground rounded-md">
+              Error
+            </div>
           </div>
         </div>
       </div>
 
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Minimalist Design Examples</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          Minimalist Design Examples
+        </h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="p-4 bg-white border rounded-lg shadow-sm">
             <div className="h-32 bg-brandGreen/10 rounded-md flex items-center justify-center">
               <div className="w-16 h-16 bg-brandGreen rounded-full"></div>
             </div>
             <h3 className="mt-4 text-lg font-medium">Clean Card</h3>
-            <p className="text-muted-foreground">Simple, clean design with subtle color accents.</p>
+            <p className="text-muted-foreground">
+              Simple, clean design with subtle color accents.
+            </p>
           </div>
-          
+
           <div className="p-4 bg-white border rounded-lg shadow-sm">
             <div className="h-32 bg-brandPink/10 rounded-md flex items-center justify-center">
               <div className="h-8 w-32 bg-brandPink rounded-md"></div>
             </div>
             <h3 className="mt-4 text-lg font-medium">Minimal UI</h3>
-            <p className="text-muted-foreground">Focused on content with just enough color.</p>
+            <p className="text-muted-foreground">
+              Focused on content with just enough color.
+            </p>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

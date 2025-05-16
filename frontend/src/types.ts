@@ -196,4 +196,4 @@ export interface TagDTO {
   name: string;
   createdAt: string;
   updatedAt?: string;
-} 
+}

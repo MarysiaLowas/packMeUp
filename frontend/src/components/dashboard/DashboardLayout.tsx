@@ -1,7 +1,7 @@
-import { type ReactNode } from 'react';
-import { useAuth } from '@/lib/hooks/useAuth';
-import { NavLink, Outlet } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { type ReactNode } from "react";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { NavLink, Outlet } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
   children?: ReactNode;
@@ -26,7 +26,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-muted",
-                isActive && "bg-muted"
+                isActive && "bg-muted",
               )
             }
           >
@@ -37,7 +37,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-muted",
-                isActive && "bg-muted"
+                isActive && "bg-muted",
               )
             }
           >
@@ -51,11 +51,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
         </nav>
       </aside>
-      <main className="p-6">
-        {children || <Outlet />}
-      </main>
+      <main className="p-6">{children || <Outlet />}</main>
     </div>
   );
 };
 
-export default DashboardLayout; 
+export default DashboardLayout;

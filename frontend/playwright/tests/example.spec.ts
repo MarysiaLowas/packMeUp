@@ -1,25 +1,26 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
-test.describe('Example tests', () => {
-  test('homepage has title and content', async ({ page }) => {
+test.describe("Example tests", () => {
+  test("homepage has title and content", async ({ page }) => {
     // Navigate to the homepage
-    await page.goto('/');
-    
+    await page.goto("/");
+
     // Verify title contains Pack Me Up
     await expect(page).toHaveTitle(/Pack Me Up/);
-    
+
     // Verify some content is visible
     // Update selector to match actual homepage content
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator("body")).toBeVisible();
   });
 });
 
 // Page Object Model example
 class HomePage {
-  constructor(private page: any) {}
+  constructor(private page: Page) {}
 
   async navigate() {
-    await this.page.goto('/');
+    await this.page.goto("/");
   }
 
   async getTitle() {
@@ -27,11 +28,11 @@ class HomePage {
   }
 }
 
-test.describe('Page Object Model pattern', () => {
-  test('using page object model', async ({ page }) => {
+test.describe("Page Object Model pattern", () => {
+  test("using page object model", async ({ page }) => {
     const homePage = new HomePage(page);
     await homePage.navigate();
     const title = await homePage.getTitle();
-    expect(title).toContain('Pack Me Up');
+    expect(title).toContain("Pack Me Up");
   });
-}); 
+});

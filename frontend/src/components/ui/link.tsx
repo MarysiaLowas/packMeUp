@@ -1,11 +1,11 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 export interface LinkProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  href: string
-  className?: string
-  children: React.ReactNode
+  href: string;
+  className?: string;
+  children: React.ReactNode;
 }
 
 const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
@@ -15,15 +15,15 @@ const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         ref={ref}
         className={cn(
           "font-medium underline-offset-4 hover:underline",
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </a>
-    )
-  }
-)
-Link.displayName = "Link"
+    );
+  },
+);
+Link.displayName = "Link";
 
-export { Link } 
+export { Link };

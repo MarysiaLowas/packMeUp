@@ -9,27 +9,27 @@ export default defineConfig({
   output: "server",
   integrations: [
     react({
-      include: ['**/react/*', '**/components/**/*.{jsx,tsx}'],
-      experimentalReactChildren: true
-    }), 
-    sitemap()
+      include: ["**/react/*", "**/components/**/*.{jsx,tsx}"],
+      experimentalReactChildren: true,
+    }),
+    sitemap(),
   ],
   server: {
     port: 3000,
-    host: true
+    host: true,
   },
   adapter: node({
     mode: "standalone",
   }),
   experimental: {
-    session: true
+    session: true,
   },
   vite: {
     ssr: {
-      noExternal: ['react-router-dom']
+      noExternal: ["react-router-dom"],
     },
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom']
-    }
-  }
+      include: ["react", "react-dom", "react-router-dom"],
+    },
+  },
 });

@@ -5,7 +5,10 @@ interface StepIndicatorProps {
   totalSteps: number;
 }
 
-export const StepIndicator = ({ currentStep, totalSteps }: StepIndicatorProps) => {
+export const StepIndicator = ({
+  currentStep,
+  totalSteps,
+}: StepIndicatorProps) => {
   const steps = [
     { value: "1", label: "Podstawowe informacje" },
     { value: "2", label: "Preferencje" },
@@ -30,4 +33,4 @@ export const StepIndicator = ({ currentStep, totalSteps }: StepIndicatorProps) =
       </TabsList>
     </Tabs>
   );
-}; 
+};

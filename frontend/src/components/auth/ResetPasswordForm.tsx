@@ -1,17 +1,30 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 const resetPasswordFormSchema = z.object({
-  email: z.string().email('Wprowadź poprawny adres email'),
+  email: z.string().email("Wprowadź poprawny adres email"),
 });
 
 type ResetPasswordFormShape = z.infer<typeof resetPasswordFormSchema>;
@@ -24,27 +37,33 @@ const ResetPasswordForm = () => {
   const form = useForm<ResetPasswordFormShape>({
     resolver: zodResolver(resetPasswordFormSchema),
     defaultValues: {
-      email: '',
+      email: "",
     },
   });
 
   const onSubmit = async (data: ResetPasswordFormShape) => {
     setApiError(null);
     setIsSuccess(false);
-    
+
     try {
       await resetPassword(data.email);
       setIsSuccess(true);
       form.reset();
     } catch (error) {
-      setApiError(error instanceof Error ? error.message : 'Wystąpił błąd podczas resetowania hasła');
+      setApiError(
+        error instanceof Error
+          ? error.message
+          : "Wystąpił błąd podczas resetowania hasła",
+      );
     }
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Reset hasła</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">
+          Reset hasła
+        </CardTitle>
         <CardDescription className="text-center">
           Wprowadź swój adres email, a wyślemy Ci instrukcje resetowania hasła.
         </CardDescription>
@@ -59,10 +78,10 @@ const ResetPasswordForm = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="email" 
-                      placeholder="twoj@email.com" 
-                      {...field} 
+                    <Input
+                      type="email"
+                      placeholder="twoj@email.com"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -79,22 +98,19 @@ const ResetPasswordForm = () => {
             {isSuccess && (
               <Alert>
                 <AlertDescription>
-                  Instrukcje resetowania hasła zostały wysłane na podany adres email.
+                  Instrukcje resetowania hasła zostały wysłane na podany adres
+                  email.
                 </AlertDescription>
               </Alert>
             )}
 
             <div className="space-y-4">
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
-                {isLoading ? 'Wysyłanie...' : 'Wyślij instrukcje'}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Wysyłanie..." : "Wyślij instrukcje"}
               </Button>
 
               <div className="text-center text-sm text-muted-foreground">
-                Pamiętasz hasło?{' '}
+                Pamiętasz hasło?{" "}
                 <Link to="/login" className="hover:text-primary">
                   Zaloguj się
                 </Link>
@@ -107,4 +123,4 @@ const ResetPasswordForm = () => {
   );
 };
 
-export default ResetPasswordForm; 
+export default ResetPasswordForm;

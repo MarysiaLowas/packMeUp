@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,11 +9,11 @@ interface ProtectedRouteProps {
   publicRedirect?: string;
 }
 
-export function ProtectedRoute({ 
-  children, 
+export function ProtectedRoute({
+  children,
   requireAuth = true,
-  authRedirect = '/login',
-  publicRedirect = '/dashboard'
+  authRedirect = "/login",
+  publicRedirect = "/dashboard",
 }: ProtectedRouteProps) {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -39,4 +39,4 @@ export function ProtectedRoute({
 
   // Podczas przekierowania pokaż pusty div
   return <div />;
-} 
+}
