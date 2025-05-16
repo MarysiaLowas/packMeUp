@@ -1,0 +1,8 @@
+---
+import { App } from '@/App';
+import ReactAppLayout from '@/layouts/ReactAppLayout.astro';
+// import '@/styles/globals.css'; // No longer needed here, handled by layout
+---
+<ReactAppLayout>
+  <App client:only="react" />
+</ReactAppLayout> 

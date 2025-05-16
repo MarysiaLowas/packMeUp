@@ -1,5 +1,17 @@
 import logging
 
+from dotenv import load_dotenv
+
+# Path to your .env file (one directory up from backend, in the project root)
+# This assumes your script's CWD when running is the 'backend' directory.
+dotenv_path = "../.env"
+# You could also use an absolute path:
+# dotenv_path = "/home/marysia/Opos/10xdev/pack_me_up/.env"
+
+# Load environment variables from .env file
+# Pass override=True if you want .env to take precedence over existing system env vars
+load_dotenv(dotenv_path=dotenv_path, override=True)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_sqlalchemy import AsyncDBSessionMiddleware  # type: ignore

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional, Tuple
 from uuid import UUID
 
-from fastapi_sqlalchemy import async_db as db
+from fastapi_sqlalchemy import async_db as db  # type: ignore
 from sqlalchemy import Column, ForeignKey, Table, insert, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
@@ -478,7 +478,7 @@ class SpecialListService:
                 raise SpecialListError("Tag not found in list", status_code=404)
 
             special_list.tags.remove(tag)
-            await special_list.save()
+            await special_list.save()  # type: ignore
         except SpecialListError as se:
             raise se
         except Exception as e:

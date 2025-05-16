@@ -14,7 +14,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
       <aside className="hidden md:flex flex-col gap-6 p-6 border-r">
         <div className="flex items-center gap-3 px-2">
-          <div className="flex flex-col">
+          <div className="flex flex-row items-baseline gap-1">
             <span className="text-sm font-medium">Witaj,</span>
             <span className="text-lg font-semibold">{user?.first_name}</span>
           </div>
