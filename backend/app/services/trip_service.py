@@ -185,11 +185,11 @@ class TripService:
                 )
                 # Handle potential formatting issues with curly braces
                 dest = str(trip.destination).replace("{", "{{").replace("}", "}}")
-                list_name = f"Packing List for {dest}"
+                list_name = f"Lista rzeczy do {dest}"
                 logger.debug(f"List name created: '{list_name}'")
             except Exception as e:
                 logger.error(f"Error creating list name: {str(e)}")
-                list_name = "Packing List"
+                list_name = "Lista rzeczy do podróży"
 
             # Create generated list entry
             try:
