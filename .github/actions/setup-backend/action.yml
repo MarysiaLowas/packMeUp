@@ -13,6 +13,14 @@ runs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
     
+    - name: Prepare local environment for CI
+      shell: bash
+      run: |
+        cd backend
+        # Create a temporary pyproject.toml without the local path dependency
+        sed '/\[tool\.uv\.sources\]/,/\[tool\.pytest\.ini_options\]/d' pyproject.toml > pyproject.toml.ci
+        mv pyproject.toml.ci pyproject.toml
+    
     - name: Install dependencies
-      run: cd backend && uv sync --locked --all-extras --dev
+      run: cd backend && uv sync --dev
       shell: bash 

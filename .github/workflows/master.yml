@@ -59,6 +59,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-backend
+      - name: Install fastapi-sqlalchemy from PyPI
+        run: cd backend && uv pip install fastapi-sqlalchemy==0.2.1
+        shell: bash
       - name: Run Ruff linter
         run: cd backend && uv run ruff check .
       
@@ -82,6 +85,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-backend
+      - name: Install fastapi-sqlalchemy from PyPI
+        run: cd backend && uv pip install fastapi-sqlalchemy==0.2.1
+        shell: bash
       - name: Run backend tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
