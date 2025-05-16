@@ -15,7 +15,6 @@ dev-env.sh
 !.env.example
 
 frontend/node_modules/
-frontend/package-lock.json
 backend/pack_me_up.egg-info/
 
 # OpenOffice temporary files

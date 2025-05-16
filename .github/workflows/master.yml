@@ -19,13 +19,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check for package-lock.json
+        run: |
+          echo "Checking for package-lock.json in frontend directory:"
+          ls -la frontend/
+          if [ -f "frontend/package-lock.json" ]; then
+            echo "✅ package-lock.json exists"
+            echo "Size: $(wc -c < frontend/package-lock.json) bytes"
+          else
+            echo "❌ package-lock.json does not exist!"
+          fi
+        shell: bash
       - uses: ./.github/actions/setup-frontend
       - name: Debug Node environment
         run: |
           echo "Node version: $(node -v)"
           echo "NPM version: $(npm -v)"
           echo "Working directory: $(pwd)"
-          echo "Frontend directory contents:"
+          echo "Frontend directory contents after npm install:"
           ls -la frontend/
         shell: bash
       - name: Run linter
@@ -36,7 +47,25 @@ jobs:
     needs: frontend-lint
     steps:
       - uses: actions/checkout@v4
+      - name: Check for package-lock.json
+        run: |
+          echo "Checking for package-lock.json in frontend directory:"
+          ls -la frontend/
+          if [ -f "frontend/package-lock.json" ]; then
+            echo "✅ package-lock.json exists"
+            echo "Size: $(wc -c < frontend/package-lock.json) bytes"
+          else
+            echo "❌ package-lock.json does not exist!"
+          fi
+        shell: bash
       - uses: ./.github/actions/setup-frontend
+      - name: Debug Node environment
+        run: |
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "Frontend directory contents after npm install:"
+          ls -la frontend/
+        shell: bash
       - name: Run unit tests
         run: cd frontend && npm test
       
@@ -51,7 +80,25 @@ jobs:
     needs: frontend-tests
     steps:
       - uses: actions/checkout@v4
+      - name: Check for package-lock.json
+        run: |
+          echo "Checking for package-lock.json in frontend directory:"
+          ls -la frontend/
+          if [ -f "frontend/package-lock.json" ]; then
+            echo "✅ package-lock.json exists"
+            echo "Size: $(wc -c < frontend/package-lock.json) bytes"
+          else
+            echo "❌ package-lock.json does not exist!"
+          fi
+        shell: bash
       - uses: ./.github/actions/setup-frontend
+      - name: Debug Node environment
+        run: |
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "Frontend directory contents after npm install:"
+          ls -la frontend/
+        shell: bash
       - name: Build frontend
         run: cd frontend && npm run build
       
