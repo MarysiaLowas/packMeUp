@@ -197,3 +197,44 @@ export interface TagDTO {
   createdAt: string;
   updatedAt?: string;
 }
+
+export interface GeneratedListItem {
+  id: string;
+  itemName: string;
+  quantity: number;
+  isPacked: boolean;
+  itemCategory?: string;
+  itemWeight?: number;
+  itemDimensions?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface GeneratedListSummary {
+  id: string;
+  name: string;
+  tripId: string;
+  createdAt: string;
+  updatedAt?: string;
+  itemsCount: number;
+  packedItemsCount: number;
+}
+
+export interface GeneratedList {
+  id: string;
+  name: string;
+  tripId: string;
+  items: GeneratedListItem[];
+  createdAt: string;
+  updatedAt?: string;
+  itemsCount: number;
+  packedItemsCount: number;
+}
+
+export interface PaginatedGeneratedLists {
+  items: GeneratedListSummary[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}

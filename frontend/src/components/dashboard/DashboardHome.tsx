@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   CardContent,
   CardDescription,
@@ -8,10 +9,31 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { apiClient } from "@/lib/api-client";
+import type { PaginatedGeneratedLists } from "@/types";
 
 const DashboardHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [listCount, setListCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchListCount = async () => {
+      try {
+        const response = await apiClient.get<PaginatedGeneratedLists>(
+          "/api/generated-lists?page=1&page_size=1",
+        );
+        setListCount(response.total);
+      } catch (error) {
+        console.error("Error fetching list count:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchListCount();
+  }, []);
 
   const handleStartTrip = () => {
     navigate("/dashboard/new-trip");
@@ -56,12 +78,19 @@ const DashboardHome = () => {
             <CardDescription>Listy pakowania w przygotowaniu</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-brandLime">0</div>
+            <div className="text-3xl font-bold text-brandLime">
+              {isLoading ? (
+                <div className="animate-pulse w-6 h-8 bg-brandLime/20 rounded" />
+              ) : (
+                listCount
+              )}
+            </div>
             <Button
               variant="ghost"
               className="mt-4 text-xs w-full justify-start hover:bg-brandLime/10 border border-transparent hover:border-brandLime/20"
+              onClick={() => navigate("/dashboard/packing-lists")}
             >
-              Stwórz listę →
+              Zobacz listy →
             </Button>
           </CardContent>
         </ThemedCard>

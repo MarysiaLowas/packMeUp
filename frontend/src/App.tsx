@@ -25,6 +25,9 @@ const ResetPasswordForm = lazy(
 );
 const NewTripPage = lazy(() => import("./components/new-trip/NewTripPage"));
 const PackingList = lazy(() => import("./components/packing-list/PackingList"));
+const PackingLists = lazy(
+  () => import("./components/packing-list/PackingLists"),
+);
 const ThemeGuide = lazy(() =>
   import("./components/ui/theme-guide").then((module) => ({
     default: module.ThemeGuide,
@@ -76,6 +79,7 @@ export function App() {
                 >
                   <Route index element={<DashboardHome />} />
                   <Route path="new-trip" element={<NewTripPage />} />
+                  <Route path="packing-lists" element={<PackingLists />} />
                 </Route>
                 <Route
                   path="/trips/:tripId/lists/:listId"

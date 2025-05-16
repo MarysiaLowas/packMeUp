@@ -46,9 +46,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground">
             Moje podróże (wkrótce)
           </div>
-          <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground">
-            Listy pakowania (wkrótce)
-          </div>
+          <NavLink
+            to="/dashboard/packing-lists"
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-muted",
+                isActive && "bg-muted",
+              )
+            }
+          >
+            Listy pakowania
+          </NavLink>
         </nav>
       </aside>
       <main className="p-6">{children || <Outlet />}</main>

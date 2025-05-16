@@ -1,15 +1,21 @@
+import { getAccessToken } from "./auth/session";
+
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 async function request<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
+  const token = getAccessToken();
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    headers,
     credentials: "include",
   });
 

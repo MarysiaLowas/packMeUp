@@ -56,11 +56,52 @@ class GeneratedListItemDTO(BaseModel):
     model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 
 
+class GeneratedListSummaryDTO(BaseModel):
+    id: UUID
+    name: str
+    trip_id: UUID = Field(..., alias="tripId")
+    created_at: datetime = Field(..., alias="createdAt")
+    updated_at: Optional[datetime] = Field(None, alias="updatedAt")
+    items_count: int = Field(..., alias="itemsCount")
+    packed_items_count: int = Field(..., alias="packedItemsCount")
+
+    @field_validator("items_count", "packed_items_count", mode="before")
+    @classmethod
+    def compute_counts(cls, v, values, **kwargs):
+        return v
+
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+
+
+class PaginatedGeneratedListResponse(BaseModel):
+    items: List[GeneratedListSummaryDTO]
+    total: int
+    page: int
+    page_size: int = Field(..., alias="pageSize")
+    total_pages: int = Field(..., alias="totalPages")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
 class GeneratePackingListResponseDTO(BaseModel):
     id: UUID
     name: str
+    trip_id: UUID = Field(..., alias="tripId")
     items: List[GeneratedListItemDTO]
     created_at: datetime = Field(..., alias="createdAt")
     updated_at: Optional[datetime] = Field(None, alias="updatedAt")
+    items_count: int = Field(..., alias="itemsCount")
+    packed_items_count: int = Field(..., alias="packedItemsCount")
+
+    @field_validator("items_count", "packed_items_count", mode="before")
+    @classmethod
+    def compute_counts(cls, v, values, **kwargs):
+        if isinstance(values, dict) and "items" in values:
+            items = values["items"]
+            if v == "items_count":
+                return len(items)
+            elif v == "packed_items_count":
+                return sum(1 for item in items if item.is_packed)
+        return v
 
     model_config = ConfigDict(populate_by_name=True, from_attributes=True)

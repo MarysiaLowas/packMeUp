@@ -16,6 +16,13 @@ router = APIRouter(tags=["auth"])
 logger = logging.getLogger(__name__)
 
 
+async def get_current_user_id(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> UUID:
+    """Get the ID of the currently authenticated user."""
+    return current_user.id
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(
