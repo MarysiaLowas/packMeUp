@@ -9,7 +9,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [["html", { outputFolder: "./playwright/report" }], ["list"]],
   use: {
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:4321",
+    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:3000",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -41,7 +41,7 @@ export default defineConfig({
     command: process.env.CI
       ? "npm run build && npm run preview"
       : "npm run dev",
-    url: "http://localhost:4321",
+    url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     stderr: "pipe",
