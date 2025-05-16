@@ -31,6 +31,12 @@ repos:
         language_version: python3
         files: ^backend/
 
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        files: ^backend/
+
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.9.0
     hooks:

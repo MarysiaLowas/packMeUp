@@ -1,15 +1,15 @@
+import logging
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status, Request, Header
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
 
+from app.config import DEV_MODE
+from app.middleware.auth import get_current_user
 from app.models import User
 from app.services.auth_service import AuthService, Token
 from app.services.user_service import UserService
-from app.middleware.auth import get_current_user
-from app.config import DEV_MODE
-import logging
 
 router = APIRouter(tags=["auth"])
 

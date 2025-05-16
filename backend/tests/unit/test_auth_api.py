@@ -1,12 +1,13 @@
-import pytest
-from unittest.mock import AsyncMock
 import uuid
-from fastapi import status, HTTPException
+from unittest.mock import AsyncMock
+
+import pytest
+from fastapi import HTTPException, status
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.services.auth_service import Token
 from app.models import User
+from app.services.auth_service import Token
 
 # Test constants
 TEST_USER_ID = uuid.uuid4()

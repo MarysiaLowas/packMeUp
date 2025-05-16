@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 import argparse
 import asyncio
-from uuid import UUID
 from typing import Optional
-from fastapi_sqlalchemy import async_db as db
+from uuid import UUID
+
 from fastapi_sqlalchemy import AsyncDBSessionMiddleware
+from fastapi_sqlalchemy import async_db as db
 from passlib.context import CryptContext
 
+from app import settings  # an object to provide global access to a database session
 from app.main import app
 from app.models import User
-from app import settings  # an object to provide global access to a database session
 
 dupa = AsyncDBSessionMiddleware(app, db_url=settings.POSTGRES_URL)
 

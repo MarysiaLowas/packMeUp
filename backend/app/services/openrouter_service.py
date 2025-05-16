@@ -1,8 +1,9 @@
-import aiohttp
+import asyncio
 import logging
 import os
-import asyncio
-from typing import Dict, Any
+from typing import Any, Dict
+
+import aiohttp
 from dotenv import load_dotenv
 
 # Load environment variables from .env file

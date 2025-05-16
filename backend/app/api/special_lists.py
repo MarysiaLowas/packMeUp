@@ -1,25 +1,26 @@
+import math
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status, Query
-import math
+
+from fastapi import APIRouter, HTTPException, Query, status
 
 from app.schemas.special_lists import (
-    CreateSpecialListCommand,
-    SpecialListDTO,
-    SpecialListDetailDTO,
-    UpdateSpecialListCommand,
     AddSpecialListItemCommand,
-    SpecialListItemWithDetailsDTO,
-    UpdateSpecialListItemCommand,
-    SpecialListFilter,
-    PaginatedSpecialListResponse,
     AddTagCommand,
-    TagDTO,
+    CreateSpecialListCommand,
+    PaginatedSpecialListResponse,
     SortField,
     SortOrder,
+    SpecialListDetailDTO,
+    SpecialListDTO,
+    SpecialListFilter,
+    SpecialListItemWithDetailsDTO,
     SpecialListSort,
+    TagDTO,
+    UpdateSpecialListCommand,
+    UpdateSpecialListItemCommand,
 )
-from app.services.special_list_service import SpecialListService, SpecialListError
+from app.services.special_list_service import SpecialListError, SpecialListService
 
 router = APIRouter(
     prefix="/api/special-lists",

@@ -1,12 +1,13 @@
-import pytest
 import uuid
-from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import timedelta
-from jose import jwt
-from fastapi import HTTPException
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from app.services.auth_service import AuthService, Token
+import pytest
+from fastapi import HTTPException
+from jose import jwt
+
 from app.models import User
+from app.services.auth_service import AuthService, Token
 
 # Constants for testing
 TEST_USER_ID = uuid.uuid4()

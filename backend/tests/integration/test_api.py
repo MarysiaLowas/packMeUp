@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient
+
 from app.main import app
 
 # Sample integration test for the API

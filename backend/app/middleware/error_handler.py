@@ -1,8 +1,9 @@
 import logging
+from typing import Any, Dict
+
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
-from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

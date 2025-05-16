@@ -1,10 +1,11 @@
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, Path, Body
+
+from fastapi import APIRouter, Body, HTTPException, Path
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models import GeneratedList, GeneratedListItem
 from app.api.dto import GeneratePackingListResponseDTO
+from app.models import GeneratedList, GeneratedListItem
 
 router = APIRouter(prefix="/api/generated-lists", tags=["generated-lists"])
 

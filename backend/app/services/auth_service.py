@@ -2,17 +2,17 @@ from datetime import datetime, timedelta, timezone
 
 UTC = timezone.utc
 
-from typing import Optional, Dict
-from uuid import UUID
-import os
 import logging
+import os
+from typing import Dict, Optional
+from uuid import UUID
 
 from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
-from app.services.user_service import UserService
 from app.models import User
+from app.services.user_service import UserService
 
 # Configure logger
 logger = logging.getLogger(__name__)

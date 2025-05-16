@@ -1,11 +1,12 @@
-import pytest
-from unittest.mock import AsyncMock, patch
 import uuid
+from unittest.mock import AsyncMock, patch
+
 import bcrypt
+import pytest
 from fastapi import HTTPException
 
+from app.models import ActiveSession, User
 from app.services.user_service import UserService
-from app.models import User, ActiveSession
 
 # Test constants
 TEST_USER_ID = uuid.uuid4()

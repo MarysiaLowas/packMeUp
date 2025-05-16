@@ -2,23 +2,23 @@ from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, Path, status, Body
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from fastapi import APIRouter, Body, HTTPException, Path, Query, status
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models import Trip, GeneratedList, GeneratedListItem
+from app.api.dto import (
+    GeneratePackingListResponseDTO,
+    LuggageModel,
+)
+from app.models import GeneratedList, GeneratedListItem, Trip
 from app.services.constants import (
-    AccommodationType,
-    TransportType,
-    SeasonType,
     CATERING_OPTIONS,
+    AccommodationType,
+    SeasonType,
+    TransportType,
 )
 from app.services.trip_service import TripService
-from app.api.dto import (
-    LuggageModel,
-    GeneratePackingListResponseDTO,
-)
 
 router = APIRouter(prefix="/api/trips", tags=["trips"])
 

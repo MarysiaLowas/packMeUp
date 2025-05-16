@@ -2,16 +2,16 @@ from datetime import datetime, timedelta, timezone
 
 UTC = timezone.utc
 
+import logging
 from typing import Optional
 from uuid import UUID
-import logging
 
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from app.models import User, ActiveSession
+from app.models import ActiveSession, User
 
 # Configure logger
 logger = logging.getLogger(__name__)

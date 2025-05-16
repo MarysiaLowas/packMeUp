@@ -1,8 +1,8 @@
+import json
 import logging
 from typing import Dict, List, Optional
-import json
 
-from app.models import Trip, SpecialList
+from app.models import SpecialList, Trip
 from app.services.openrouter_service import OpenRouterService
 
 # Configure logging

@@ -1,22 +1,23 @@
 import uuid
-from datetime import datetime, date
-from typing import List, Optional, Dict, Any, TypeVar
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional, TypeVar
 
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
     Boolean,
-    DateTime,
-    Numeric,
-    ForeignKey,
-    Table,
     CheckConstraint,
+    Column,
     Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Table,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID, ARRAY, JSONB
-from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from app.crud import CrudMixin

@@ -18,6 +18,20 @@ Testing - Framework'i i narzędzia testujące:
     Storybook do testowania izolowanych komponentów UI
     Lighthouse do testów wydajności i dostępności
 
+Linters i narzędzia do jakości kodu:
+
+    Frontend:
+        ESLint z pluginami dla TypeScript, React, React Hooks, JSX A11y i Astro
+        Prettier zintegrowany z ESLint do formatowania kodu
+
+    Backend:
+        Ruff - nowoczesny linter dla Pythona z wyselekcjonowanymi regułami
+        Black - formatter kodu Python
+        MyPy - narzędzie do statycznej analizy typów
+        isort - organizacja importów w Pythonie
+
+    Pre-commit hooks dla automatycznej weryfikacji jakości kodu przed commitami (Ruff, Black, isort, MyPy)
+
 AI - Komunikacja z modelami przez usługę Openrouter.ai:
 
     Dostęp do szerokiej gamy modeli (OpenAI, Anthropic, Google i wiele innych), które pozwolą nam znaleźć rozwiązanie zapewniające wysoką efektywność i niskie koszta

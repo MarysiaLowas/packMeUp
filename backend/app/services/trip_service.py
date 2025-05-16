@@ -5,10 +5,10 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models import Trip, GeneratedList, GeneratedListItem
+from app.api.dto import GeneratePackingListResponseDTO
+from app.models import GeneratedList, GeneratedListItem, Trip
 from app.services.ai_service import AIService
 from app.services.special_list_service import SpecialListService
-from app.api.dto import GeneratePackingListResponseDTO
 
 
 class TripService:
