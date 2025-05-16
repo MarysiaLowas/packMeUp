@@ -30,11 +30,11 @@ const createTripFormSchema = z.object({
   childrenAges: z.array(z.number().int().min(0)).optional(),
   accommodation: z.string().optional(),
   catering: z
-    .array(z.number().int().min(0).max(2))
+    .array(z.number().int().min(0).max(3))
     .optional()
     .refine(
       (values) =>
-        !values?.length || values.every((val) => [0, 1, 2].includes(val)),
+        !values?.length || values.every((val) => [0, 1, 2, 3].includes(val)),
       "Nieprawidłowe opcje wyżywienia",
     ),
   transport: z.string().optional(),
