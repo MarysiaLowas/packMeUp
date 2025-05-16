@@ -7,9 +7,15 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const DashboardHome = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartTrip = () => {
+    navigate("/dashboard/new-trip");
+  };
 
   return (
     <div className="space-y-8">
@@ -37,6 +43,7 @@ const DashboardHome = () => {
             <Button
               variant="ghost"
               className="mt-4 text-xs w-full justify-start hover:bg-brandGreen/10 border border-transparent hover:border-brandGreen/20"
+              onClick={handleStartTrip}
             >
               Zaplanuj podróż →
             </Button>
@@ -112,7 +119,12 @@ const DashboardHome = () => {
       <div className="h-px bg-gradient-to-r from-transparent via-brandGreen/30 to-transparent border-0 my-8"></div>
 
       <div className="text-center">
-        <Button variant="gradient" size="lg" className="px-8">
+        <Button
+          variant="gradient"
+          size="lg"
+          className="px-8"
+          onClick={handleStartTrip}
+        >
           Rozpocznij nową podróż
         </Button>
       </div>
