@@ -17,9 +17,26 @@ runs:
       shell: bash
       run: |
         cd backend
-        # Create a temporary pyproject.toml without the local path dependency
-        sed '/\[tool\.uv\.sources\]/,/\[tool\.pytest\.ini_options\]/d' pyproject.toml > pyproject.toml.ci
+        echo "Backend directory structure:"
+        ls -la
+        
+        echo "Original pyproject.toml content:"
+        cat pyproject.toml
+        
+        # Create CI version of pyproject.toml by commenting out the problematic lines
+        awk '
+        /\[tool\.uv\.sources\]/ {print "# " $0; next}
+        /fastapi-sqlalchemy = \{ path =/ {print "# " $0; next}
+        {print}
+        ' pyproject.toml > pyproject.toml.ci
         mv pyproject.toml.ci pyproject.toml
+        
+        echo "Modified pyproject.toml content:"
+        cat pyproject.toml
+        
+        # Install fastapi-sqlalchemy from PyPI
+        echo "Installing fastapi-sqlalchemy from PyPI"
+        uv pip install fastapi-sqlalchemy==0.2.1
     
     - name: Install dependencies
       run: cd backend && uv sync --dev

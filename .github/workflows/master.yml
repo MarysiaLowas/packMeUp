@@ -20,6 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-frontend
+      - name: Debug Node environment
+        run: |
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "Working directory: $(pwd)"
+          echo "Frontend directory contents:"
+          ls -la frontend/
+        shell: bash
       - name: Run linter
         run: cd frontend && npm run lint
 
@@ -59,9 +67,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-backend
-      - name: Install fastapi-sqlalchemy from PyPI
-        run: cd backend && uv pip install fastapi-sqlalchemy==0.2.1
-        shell: bash
       - name: Run Ruff linter
         run: cd backend && uv run ruff check .
       
@@ -85,9 +90,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-backend
-      - name: Install fastapi-sqlalchemy from PyPI
-        run: cd backend && uv pip install fastapi-sqlalchemy==0.2.1
-        shell: bash
       - name: Run backend tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
