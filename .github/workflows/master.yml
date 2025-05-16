@@ -35,7 +35,6 @@ jobs:
         run: |
           echo "Node version: $(node -v)"
           echo "NPM version: $(npm -v)"
-          echo "Working directory: $(pwd)"
           echo "Frontend directory contents after npm install:"
           ls -la frontend/
         shell: bash
