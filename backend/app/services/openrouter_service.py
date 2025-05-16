@@ -155,6 +155,50 @@ class OpenRouterService:
                 logger.info(f"Retrying in {wait} seconds...")
                 await asyncio.sleep(wait)  # Use asyncio.sleep instead of time.sleep
 
+    async def ask(self) -> str:
+        """
+        Send a request to the OpenRouter API and extract only the message content.
+
+        This is a convenience method that calls send_request and processes the response
+        to extract just the content of the assistant's message.
+
+        Returns:
+            The content of the assistant's message as a string
+        """
+        try:
+            logger.debug("Calling send_request from ask()")
+            response = await self.send_request()
+
+            logger.debug(
+                f"Processing response in ask(), type: {type(response).__name__}"
+            )
+
+            # Check if response is valid
+            if not response or not isinstance(response, dict):
+                logger.error(f"Invalid response format: {response}")
+                raise ValueError("Invalid response format from OpenRouter")
+
+            # Get choices from response
+            choices = response.get("choices", [])
+            if not choices:
+                logger.error("No choices in OpenRouter response")
+                raise ValueError("No choices in OpenRouter response")
+
+            # Get message content from first choice
+            message = choices[0].get("message", {})
+            content = message.get("content", "")
+
+            if not content:
+                logger.warning("Empty content in OpenRouter response")
+                return ""
+
+            logger.debug(f"Extracted content length: {len(content)} characters")
+            return content
+
+        except Exception as e:
+            logger.error(f"Error in ask(): {str(e)}")
+            raise ValueError(f"Failed to get response from OpenRouter: {str(e)}")
+
     # Private Methods
     def _build_request_payload(self) -> Dict[str, Any]:
         """Build the payload for the API request."""

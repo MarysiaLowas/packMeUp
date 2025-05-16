@@ -41,7 +41,11 @@ class TripService:
             **kwargs,
         }
 
-        return await Trip.create(**trip_data)
+        # Create trip and return its ID
+        trip_id = await Trip.create(**trip_data)
+
+        # Fetch and return the complete Trip object
+        return await Trip.get(id=trip_id)
 
     @staticmethod
     async def list_trips(
@@ -133,66 +137,153 @@ class TripService:
             ValueError: If trip is invalid or special lists not found
             Exception: For AI service or database errors
         """
-        # Verify trip ownership again as a safeguard
-        if trip.user_id != user_id:
-            raise ValueError("Access denied")
+        # Setup logging
+        import logging
 
-        # Get special lists if specified
-        special_lists = []
-        if include_special_lists:
-            special_lists = await SpecialListService.get_lists(
-                list_ids=include_special_lists, user_id=user_id
+        logger = logging.getLogger("trip_service")
+        logger.setLevel(logging.DEBUG)
+        # Create console handler if it doesn't exist
+        if not logger.handlers:
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.DEBUG)
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )
-            if len(special_lists) != len(include_special_lists):
-                raise ValueError("One or more special lists not found")
-
-        # Generate list name based on trip destination
-        list_name = f"Packing List for {trip.destination}"
-
-        # Create generated list entry
-        generated_list = await GeneratedList.create(
-            user_id=user_id, trip_id=trip.id, name=list_name
-        )
+            console_handler.setFormatter(formatter)
+            logger.addHandler(console_handler)
 
         try:
-            # Call AI service to generate items
-            generated_items = await AIService.generate_packing_list(
-                trip=trip,
-                special_lists=special_lists,
-                exclude_categories=exclude_categories,
+            logger.debug(f"Starting generate_packing_list for trip ID: {trip.id}")
+            logger.debug(
+                f"Trip data: dest={trip.destination}, days={trip.duration_days}, adults={trip.num_adults}"
             )
 
-            # Create generated list items
-            for item in generated_items:
-                await GeneratedListItem.create(
-                    generated_list_id=generated_list.id,
-                    item_id=item.get("item_id"),  # May be None for custom items
-                    item_name=item["name"],
-                    quantity=item.get("quantity", 1),
-                    is_packed=False,
-                    item_category=item.get("category"),
-                    item_weight=(
-                        float(item["weight"])
-                        if item.get("weight") is not None
-                        else None
-                    ),
-                    item_dimensions=item.get("dimensions"),
+            # Verify trip ownership again as a safeguard
+            if trip.user_id != user_id:
+                logger.error(
+                    f"Access denied: Trip owner {trip.user_id} != requester {user_id}"
+                )
+                raise ValueError("Access denied")
+
+            # Get special lists if specified
+            special_lists = []
+            if include_special_lists:
+                logger.debug(f"Fetching special lists: {include_special_lists}")
+                special_lists = await SpecialListService.get_lists(
+                    list_ids=include_special_lists, user_id=user_id
+                )
+                if len(special_lists) != len(include_special_lists):
+                    logger.error(
+                        f"Special lists not found: requested {len(include_special_lists)}, found {len(special_lists)}"
+                    )
+                    raise ValueError("One or more special lists not found")
+
+            # Generate list name based on trip destination
+            try:
+                logger.debug(
+                    f"Creating list name for destination: '{trip.destination}'"
+                )
+                # Handle potential formatting issues with curly braces
+                dest = str(trip.destination).replace("{", "{{").replace("}", "}}")
+                list_name = f"Packing List for {dest}"
+                logger.debug(f"List name created: '{list_name}'")
+            except Exception as e:
+                logger.error(f"Error creating list name: {str(e)}")
+                list_name = "Packing List"
+
+            # Create generated list entry
+            try:
+                logger.debug(
+                    f"Creating GeneratedList: user_id={user_id}, trip_id={trip.id}, name='{list_name}'"
+                )
+                generated_list_id = await GeneratedList.create(
+                    user_id=user_id, trip_id=trip.id, name=list_name
+                )
+                logger.debug(f"GeneratedList created with ID: {generated_list_id}")
+            except Exception as e:
+                logger.error(f"Error creating GeneratedList: {str(e)}")
+                raise Exception(f"Failed to create generated list: {str(e)}")
+
+            try:
+                # Call AI service to generate items
+                logger.debug("Calling AI service to generate packing list")
+                generated_items = await AIService.generate_packing_list(
+                    trip=trip,
+                    special_lists=special_lists,
+                    exclude_categories=exclude_categories,
+                )
+                logger.debug(f"AI service returned {len(generated_items)} items")
+
+                # Create generated list items
+                for i, item in enumerate(generated_items):
+                    try:
+                        logger.debug(
+                            f"Creating item {i+1}/{len(generated_items)}: {item.get('name', 'unknown')}"
+                        )
+                        item_weight = None
+                        if item.get("weight") is not None:
+                            try:
+                                item_weight = float(item["weight"])
+                            except (ValueError, TypeError) as e:
+                                logger.warning(
+                                    f"Invalid weight value '{item.get('weight')}': {str(e)}"
+                                )
+
+                        await GeneratedListItem.create(
+                            generated_list_id=generated_list_id,
+                            item_id=item.get("item_id"),  # May be None for custom items
+                            item_name=item["name"],
+                            quantity=item.get("quantity", 1),
+                            is_packed=False,
+                            item_category=item.get("category"),
+                            item_weight=item_weight,
+                            item_dimensions=item.get("dimensions"),
+                        )
+                    except Exception as e:
+                        logger.error(f"Error creating item {i+1}: {str(e)}")
+                        # Continue with next item instead of failing the whole process
+                        continue
+
+                # Fetch the complete list with items
+                logger.debug(
+                    f"Fetching complete list with items for ID: {generated_list_id}"
+                )
+                query = (
+                    select(GeneratedList)
+                    .where(GeneratedList.id == generated_list_id)
+                    .options(selectinload(GeneratedList.items))
+                )
+                result = await GeneratedList.select_one(query)
+                if not result:
+                    logger.error(
+                        f"Failed to load generated list with ID: {generated_list_id}"
+                    )
+                    raise Exception("Failed to load generated list with items")
+
+                logger.debug(
+                    f"Successfully fetched list with {len(result.items) if hasattr(result, 'items') else 0} items"
                 )
 
-            # Fetch the complete list with items
-            query = (
-                select(GeneratedList)
-                .where(GeneratedList.id == generated_list.id)
-                .options(selectinload(GeneratedList.items))
-            )
-            result = await GeneratedList.select_one(query)
-            if not result:
-                raise Exception("Failed to load generated list with items")
+                # Convert to DTO and return
+                logger.debug("Converting result to DTO")
+                dto = GeneratePackingListResponseDTO.model_validate(
+                    result, from_attributes=True
+                )
+                logger.debug("Successfully generated packing list")
+                return dto
 
-            # Convert to DTO and return
-            return GeneratePackingListResponseDTO.from_orm(result)
+            except Exception as e:
+                logger.error(f"Error during list generation: {str(e)}")
+                # Clean up generated list if something fails
+                try:
+                    logger.debug(
+                        f"Cleaning up generated list with ID: {generated_list_id}"
+                    )
+                    await GeneratedList.delete(id=generated_list_id)
+                except Exception as cleanup_error:
+                    logger.error(f"Error during cleanup: {str(cleanup_error)}")
+                raise Exception(f"Failed to generate packing list: {str(e)}")
 
-        except Exception as e:
-            # Clean up generated list if something fails
-            await GeneratedList.delete(id=generated_list.id)
-            raise Exception(f"Failed to generate packing list: {str(e)}")
+        except Exception as outer_e:
+            logger.error(f"Outer exception in generate_packing_list: {str(outer_e)}")
+            raise

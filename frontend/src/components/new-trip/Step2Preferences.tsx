@@ -42,6 +42,7 @@ const CATERING_OPTIONS = [
   { id: 0, label: "All inclusive" },
   { id: 1, label: "Tylko śniadanie" },
   { id: 2, label: "Własne wyżywienie" },
+  { id: 3, label: "Kolacja na mieście" },
 ];
 
 export const Step2Preferences = () => {

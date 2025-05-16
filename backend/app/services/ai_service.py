@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Dict, List, Optional
 
 from app.models import SpecialList, Trip
@@ -62,54 +63,95 @@ Przygotowując listę, weź pod uwagę następujące kluczowe aspekty, aby dosto
 
     @staticmethod
     def _clean_json_content(content: str) -> str:
-        """Clean the JSON content by removing markdown code blocks and fixing truncation."""
-        logger.debug(f"Cleaning content: {content}")
+        """Clean and extract valid JSON from the LLM response."""
+        logger.debug("Cleaning JSON content")
 
-        # Remove markdown code block if present
-        if content.startswith("```"):
-            # Find the content between ```json and ```
-            start_marker = "```json\n"
-            if start_marker in content:
-                content = content.split(start_marker)[1]
-                if "```" in content:
-                    content = content.split("```")[0]
+        try:
+            # Log the first part of the content for debugging
+            preview = content[:200] if len(content) > 200 else content
+            logger.debug(f"Content to clean (preview): {preview}...")
+
+            # Try to extract JSON array from content
+            json_pattern = r"\[.*\]"
+            array_match = re.search(json_pattern, content, re.DOTALL)
+
+            if array_match:
+                logger.debug("Found JSON array pattern")
+                extracted_json = array_match.group(0)
+
+                # Try to parse it to verify it's valid
+                try:
+                    json.loads(extracted_json)
+                    logger.debug("Extracted JSON is valid")
+                    return extracted_json
+                except json.JSONDecodeError:
+                    logger.warning(
+                        "Extracted JSON array is not valid, attempting repairs"
+                    )
             else:
-                # Try without json specification
-                content = content.split("```")[1]
-                if "```" in content:
-                    content = content.split("```")[0]
+                logger.warning("No JSON array pattern found in content")
+                extracted_json = content
 
-        content = content.strip()
-        logger.debug(f"Content after markdown removal: {content}")
+            # Remove markdown code block markers if present
+            if "```json" in extracted_json:
+                logger.debug("Removing markdown code block markers")
+                extracted_json = re.sub(r"```json\s*", "", extracted_json)
+                extracted_json = re.sub(r"```\s*", "", extracted_json)
 
-        # Fix malformed JSON at the end
-        if content.endswith("]}]"):
-            content = content[:-3]  # Remove malformed closing brackets
+            # Find the first [ and last ]
+            start_idx = extracted_json.find("[")
+            end_idx = extracted_json.rfind("]")
 
-        # Find the last complete object
-        last_complete_brace = content.rfind("}")
-        if last_complete_brace != -1:
-            content = content[: last_complete_brace + 1]
+            if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
+                logger.debug(f"Trimming content from index {start_idx} to {end_idx+1}")
+                extracted_json = extracted_json[start_idx : end_idx + 1]
+            else:
+                logger.warning("Could not find matching [ and ] in content")
 
-        # Ensure proper array closure
-        if content.count("[") > content.count("]"):
-            content += "]"
+            # Remove any trailing or leading commas before closing brackets
+            extracted_json = re.sub(r",\s*}", "}", extracted_json)
+            extracted_json = re.sub(r",\s*]", "]", extracted_json)
 
-        # Ensure the content starts with [ and ends with ]
-        if not content.startswith("["):
-            content = "[" + content
-        if not content.endswith("]"):
-            content = content + "]"
+            # Fix missing closing braces
+            open_braces = extracted_json.count("{")
+            close_braces = extracted_json.count("}")
 
-        # Fix any truncated objects at the end
-        if '"Name":' in content and not content.endswith("}]"):
-            # Find the last complete object
-            last_complete = content.rfind("  }")
-            if last_complete != -1:
-                content = content[: last_complete + 3] + "]"
+            if open_braces > close_braces:
+                logger.debug(
+                    f"Adding {open_braces - close_braces} missing close braces"
+                )
+                extracted_json += "}" * (open_braces - close_braces)
 
-        logger.debug(f"Final cleaned content: {content}")
-        return content
+            # Fix missing closing brackets
+            open_brackets = extracted_json.count("[")
+            close_brackets = extracted_json.count("]")
+
+            if open_brackets > close_brackets:
+                logger.debug(
+                    f"Adding {open_brackets - close_brackets} missing close brackets"
+                )
+                extracted_json += "]" * (open_brackets - close_brackets)
+
+            # Try to parse the result to verify it's valid JSON
+            try:
+                result = json.loads(extracted_json)
+                logger.debug("Successfully parsed cleaned JSON")
+
+                # If it's not a list, but we expect a list, wrap it
+                if not isinstance(result, list):
+                    logger.debug("Result is not a list, wrapping it")
+                    return json.dumps([result])
+
+                return extracted_json
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse cleaned JSON: {str(e)}")
+                # Last resort - return simple empty array
+                logger.debug("Returning empty array as fallback")
+                return "[]"
+
+        except Exception as e:
+            logger.error(f"Error cleaning JSON content: {str(e)}")
+            return "[]"
 
     @staticmethod
     async def generate_packing_list(
@@ -133,17 +175,99 @@ Przygotowując listę, weź pod uwagę następujące kluczowe aspekty, aby dosto
         # Create instance to access OpenRouter
         ai_service = AIService()
 
+        # Log trip details for debugging
+        logger.debug(f"AIService.generate_packing_list called for trip ID: {trip.id}")
+        logger.debug(f"Trip destination: '{trip.destination}'")
+        logger.debug(f"Trip transport: '{trip.transport}'")
+        logger.debug(f"Trip accommodation: '{trip.accommodation}'")
+        logger.debug(
+            f"Trip available_luggage type: {type(trip.available_luggage).__name__}"
+        )
+
+        # Safely log trip.children_ages
+        try:
+            children_str = str(trip.children_ages) if trip.children_ages else "None"
+            logger.debug(f"Trip children_ages: {children_str}")
+        except Exception as e:
+            logger.warning(f"Error logging children_ages: {str(e)}")
+
+        # Safely log trip.activities
+        try:
+            activities_str = (
+                ", ".join(trip.activities)
+                if trip.activities and isinstance(trip.activities, list)
+                else "Not specified"
+            )
+            logger.debug(f"Trip activities: {activities_str}")
+        except Exception as e:
+            logger.warning(f"Error joining activities: {str(e)}")
+
         # Build prompt with trip details
-        prompt = f"""
+        try:
+            logger.debug("Building prompt")
+            # Safe string representation, escaping any format specifiers
+
+            dest = (
+                str(trip.destination).replace("{", "{{").replace("}", "}}")
+                if trip.destination
+                else "Not specified"
+            )
+            days = (
+                str(trip.duration_days).replace("{", "{{").replace("}", "}}")
+                if trip.duration_days
+                else "0"
+            )
+            adults = (
+                str(trip.num_adults).replace("{", "{{").replace("}", "}}")
+                if trip.num_adults
+                else "0"
+            )
+
+            children_safe = (
+                str(trip.children_ages).replace("{", "{{").replace("}", "}}")
+                if trip.children_ages
+                else "None"
+            )
+            accommodation_safe = (
+                str(trip.accommodation).replace("{", "{{").replace("}", "}}")
+                if trip.accommodation
+                else "Not specified"
+            )
+            transport_safe = (
+                str(trip.transport).replace("{", "{{").replace("}", "}}")
+                if trip.transport
+                else "Not specified"
+            )
+
+            # Handle activities safely
+            if trip.activities and isinstance(trip.activities, list):
+                try:
+                    activities_joined = ", ".join(
+                        str(a).replace("{", "{{").replace("}", "}}")
+                        for a in trip.activities
+                    )
+                except Exception as e:
+                    logger.error(f"Error formatting activities: {str(e)}")
+                    activities_joined = "Not specified"
+            else:
+                activities_joined = "Not specified"
+
+            season_safe = (
+                str(trip.season).replace("{", "{{").replace("}", "}}")
+                if trip.season
+                else "Not specified"
+            )
+
+            prompt = f"""
 Wygeneruj listę rzeczy do spakowania na podróż o następujących szczegółach:
-- Cel podróży: {trip.destination}
-- Czas trwania: {trip.duration_days} dni
-- Liczba dorosłych: {trip.num_adults}
-- Wiek dzieci: {trip.children_ages if trip.children_ages else 'None'} (lista wieków dzieci, np. [], [2, 5], jeśli brak dzieci, lista będzie pusta)
-- Zakwaterowanie: {trip.accommodation if trip.accommodation else 'Not specified'} (np. hotel, apartament z kuchnią, kemping)
-- Transport: {trip.transport if trip.transport else 'Not specified'}(np. samolot, samochód, pociąg)
-- Aktywności: {', '.join(trip.activities) if trip.activities else 'Not specified'} (np. plażowanie, zwiedzanie miasta, trekking, spotkania biznesowe)
-- Pora roku: {trip.season if trip.season else 'Not specified'} (np. lato, zima, wiosna, jesień)
+- Cel podróży: {dest}
+- Czas trwania: {days} dni
+- Liczba dorosłych: {adults}
+- Wiek dzieci: {children_safe} (lista wieków dzieci, np. [], [2, 5], jeśli brak dzieci, lista będzie pusta)
+- Zakwaterowanie: {accommodation_safe} (np. hotel, apartament z kuchnią, kemping)
+- Transport: {transport_safe}(np. samolot, samochód, pociąg)
+- Aktywności: {activities_joined} (np. plażowanie, zwiedzanie miasta, trekking, spotkania biznesowe)
+- Pora roku: {season_safe} (np. lato, zima, wiosna, jesień)
 
 Dla każdego przedmiotu na liście, zwróć obiekt JSON z następującymi **kluczami w języku angielskim**:
 - `name`: (string) Jasna i konkretna **nazwa przedmiotu w języku polskim**.
@@ -152,7 +276,7 @@ Dla każdego przedmiotu na liście, zwróć obiekt JSON z następującymi **kluc
 - `weight`: (number, opcjonalnie) Przybliżona waga w kg. Staraj się podać dla jak największej liczby przedmiotów, zwłaszcza jeśli są ograniczenia bagażowe. Użyj kropki jako separatora dziesiętnego.
 
 Przykład pojedynczego obiektu JSON:
-`{"name": "Pasta do zębów", "quantity": 1, "category": "Kosmetyki", "weight": 0.1}`
+`{{"name": "Pasta do zębów", "quantity": 1, "category": "Kosmetyki", "weight": 0.1}}`
 
 Sformatuj odpowiedź jako tablicę JSON tych obiektów.
 Upewnij się, że wszystkie wartości dla klucza `quantity` są liczbami całkowitymi, a dla klucza `weight` liczbami (mogą być dziesiętne).
@@ -160,137 +284,359 @@ Upewnij się, że całkowita waga nie przekracza limitów bagażu, jeśli zosta�
 Nie umieszczaj tablicy JSON w żadnym dodatkowym obiekcie nadrzędnym.
 Klucze w obiektach JSON muszą być w języku angielskim, a **wartości tekstowe (takie jak wartości dla kluczy `name` i `category`) muszą być w języku polskim.**
 """
+            logger.debug("Prompt built successfully")
+        except Exception as e:
+            logger.error(f"Error building prompt: {str(e)}")
+            # Fallback to a simpler prompt
+            prompt = """
+Wygeneruj listę rzeczy do spakowania na podróż.
+Dla każdego przedmiotu zwróć obiekt JSON z następującymi kluczami:
+- name: Nazwa przedmiotu po polsku
+- quantity: Liczba sztuk (liczba całkowita)
+- category: Kategoria (po polsku): Odzież, Elektronika, Kosmetyki, Dokumenty, Akcesoria, Zdrowie, Rozrywka
+- weight: Przybliżona waga w kg (opcjonalnie)
+
+Przykład: {"name": "Pasta do zębów", "quantity": 1, "category": "Kosmetyki", "weight": 0.1}
+"""
 
         if trip.available_luggage:
-            prompt += "\nOgraniczenia bagażowe:\n"
-            for luggage in trip.available_luggage:
-                # Ensure luggage is a dictionary before attempting to access its keys
-                if isinstance(luggage, dict):
-                    if "max_weight" in luggage:
-                        prompt += f"- Maksymalna waga: {luggage['max_weight']} kg\n"
-                    if "dimensions" in luggage:
-                        prompt += f"- Wymiary: {luggage['dimensions']}\n"
+            try:
+                logger.debug(
+                    f"Adding luggage constraints, type: {type(trip.available_luggage).__name__}"
+                )
+                prompt += "\nOgraniczenia bagażowe:\n"
+
+                # Ensure we're dealing with a list or convert to list if it's a single item
+                luggage_items = trip.available_luggage
+                if not isinstance(luggage_items, list):
+                    logger.debug(
+                        f"Converting non-list luggage to list: {type(luggage_items).__name__}"
+                    )
+                    luggage_items = [luggage_items]
+
+                for i, luggage in enumerate(luggage_items):
+                    logger.debug(
+                        f"Processing luggage item {i+1}, type: {type(luggage).__name__}"
+                    )
+                    # Try different ways to access luggage data
+                    if isinstance(luggage, dict):
+                        logger.debug(f"Luggage keys: {list(luggage.keys())}")
+                        if "max_weight" in luggage:
+                            weight_val = (
+                                str(luggage["max_weight"])
+                                .replace("{", "{{")
+                                .replace("}", "}}")
+                            )
+                            prompt += f"- Maksymalna waga: {weight_val} kg\n"
+                        if "maxWeight" in luggage:  # Try alternative property name
+                            weight_val = (
+                                str(luggage["maxWeight"])
+                                .replace("{", "{{")
+                                .replace("}", "}}")
+                            )
+                            prompt += f"- Maksymalna waga: {weight_val} kg\n"
+                        if "dimensions" in luggage:
+                            dim_val = (
+                                str(luggage["dimensions"])
+                                .replace("{", "{{")
+                                .replace("}", "}}")
+                            )
+                            prompt += f"- Wymiary: {dim_val}\n"
+                    elif hasattr(luggage, "max_weight") and luggage.max_weight:
+                        weight_val = (
+                            str(luggage.max_weight)
+                            .replace("{", "{{")
+                            .replace("}", "}}")
+                        )
+                        prompt += f"- Maksymalna waga: {weight_val} kg\n"
+                    elif hasattr(luggage, "maxWeight") and luggage.maxWeight:
+                        weight_val = (
+                            str(luggage.maxWeight).replace("{", "{{").replace("}", "}}")
+                        )
+                        prompt += f"- Maksymalna waga: {weight_val} kg\n"
+
+                    if hasattr(luggage, "dimensions") and luggage.dimensions:
+                        dim_val = (
+                            str(luggage.dimensions)
+                            .replace("{", "{{")
+                            .replace("}", "}}")
+                        )
+                        prompt += f"- Wymiary: {dim_val}\n"
+            except Exception as e:
+                logger.error(f"Error adding luggage constraints: {str(e)}")
 
         # Set user message
-        ai_service.openrouter.set_user_message(prompt)
+        try:
+            logger.debug("Setting user message on OpenRouter client")
+            ai_service.openrouter.set_user_message(prompt)
+            logger.debug("User message set successfully")
+        except Exception as e:
+            logger.error(f"Error setting user message: {str(e)}")
+            raise ValueError(f"Failed to set user message: {str(e)}")
 
         try:
-            # Get AI-generated items
-            response = await ai_service.openrouter.send_request()
-            logger.debug(f"OpenRouter raw response: {response}")
+            # Call the API
+            logger.debug("Calling OpenRouter API to generate packing list")
+            response = await ai_service.openrouter.ask()
+            logger.debug("OpenRouter API call completed")
 
-            # Parse response more carefully
-            if not response or not isinstance(response, dict):
-                logger.error(f"Invalid response format from OpenRouter: {response}")
-                raise ValueError("Invalid response format from OpenRouter")
+            # Process and parse the response
+            logger.debug("Processing AI response")
+            items = []
 
-            choices = response.get("choices", [])
-            if not choices:
-                logger.error("No choices in OpenRouter response")
-                raise ValueError("No choices in OpenRouter response")
-
-            content = choices[0].get("message", {}).get("content", "")
-            logger.debug(f"Content from OpenRouter: {content}")
-
-            # Clean and parse the content
             try:
-                cleaned_content = AIService._clean_json_content(content)
-                logger.debug(f"Cleaned content: {cleaned_content}")
-                items = json.loads(cleaned_content)
+                logger.debug(f"Raw AI response type: {type(response).__name__}")
+                json_str = response
 
-                if not isinstance(items, list):
-                    logger.error(f"Content is not a list: {items}")
-                    raise ValueError("Content is not a list")
+                # Log the first 200 chars of response for debugging
+                safe_preview = str(json_str)[:200].replace("{", "{{").replace("}", "}}")
+                logger.debug(f"Response preview: {safe_preview}...")
 
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON content: {e}")
-                raise ValueError(f"Failed to parse JSON content: {e}")
+                try:
+                    logger.debug("Cleaning and parsing JSON response")
 
-            logger.debug(f"Parsed items: {items}")
+                    # Clean and prepare the JSON before parsing
+                    cleaned_json = AIService._clean_json_content(json_str)
+                    logger.debug("JSON content cleaned, attempting to parse")
+
+                    parsed_items = json.loads(cleaned_json)
+
+                    if not isinstance(parsed_items, list):
+                        logger.warning(
+                            "Parsed response is not a list, wrapping in list"
+                        )
+                        parsed_items = [parsed_items]
+
+                    logger.debug(
+                        f"Successfully parsed {len(parsed_items)} items from response"
+                    )
+
+                    # Process each item
+                    for i, item in enumerate(parsed_items):
+                        try:
+                            logger.debug(
+                                f"Processing item {i+1}: {item.get('name', 'Unknown')}"
+                            )
+
+                            # Ensure required fields exist
+                            if "name" not in item:
+                                logger.warning(
+                                    f"Item {i+1} missing 'name' field, skipping"
+                                )
+                                continue
+
+                            if "category" not in item:
+                                logger.warning(
+                                    f"Item {i+1} '{item['name']}' missing 'category' field, adding default"
+                                )
+                                item["category"] = "Inne"
+
+                            # Process quantity field
+                            if "quantity" not in item:
+                                logger.warning(
+                                    f"Item {i+1} '{item['name']}' missing 'quantity' field, setting to 1"
+                                )
+                                item["quantity"] = 1
+                            else:
+                                # Ensure quantity is an integer
+                                try:
+                                    quantity_value = item["quantity"]
+                                    if not isinstance(quantity_value, int):
+                                        logger.warning(
+                                            f"Item {i+1} '{item['name']}' has non-integer quantity: {quantity_value}, converting"
+                                        )
+                                        item["quantity"] = int(float(quantity_value))
+                                except (ValueError, TypeError) as e:
+                                    logger.error(
+                                        f"Error converting quantity for '{item['name']}': {str(e)}"
+                                    )
+                                    item["quantity"] = 1
+
+                            # Add weight if missing
+                            if "weight" not in item:
+                                logger.debug(
+                                    f"Item {i+1} '{item['name']}' missing 'weight' field"
+                                )
+                            else:
+                                # Ensure weight is a number
+                                try:
+                                    weight_value = item["weight"]
+                                    if not isinstance(weight_value, (int, float)):
+                                        logger.warning(
+                                            f"Item {i+1} '{item['name']}' has non-numeric weight: {weight_value}, converting"
+                                        )
+                                        item["weight"] = float(weight_value)
+                                except (ValueError, TypeError) as e:
+                                    logger.error(
+                                        f"Error converting weight for '{item['name']}': {str(e)}"
+                                    )
+                                    item.pop("weight", None)  # Remove invalid weight
+
+                            # Add the processed item
+                            items.append(item)
+
+                        except Exception as e:
+                            logger.error(f"Error processing item {i+1}: {str(e)}")
+
+                    logger.debug(f"Final processed item count: {len(items)}")
+                except json.JSONDecodeError as e:
+                    logger.error(f"Failed to parse JSON: {str(e)}")
+                    logger.error(f"Invalid JSON: {json_str}")
+                    # Try to extract anything that looks like items from the malformed response
+                    items = ai_service._extract_items_from_text(json_str)
+                    logger.debug(
+                        f"Extracted {len(items)} items from malformed response"
+                    )
+            except Exception as e:
+                logger.error(f"Error processing AI response: {str(e)}")
+
+            # Adjust quantities for adults and children
+            try:
+                if trip.num_adults > 1 or (
+                    trip.children_ages and len(trip.children_ages) > 0
+                ):
+                    logger.debug("Adjusting quantities for multiple people")
+                    for item in items:
+                        try:
+                            # Adjust quantities for personal items
+                            category_en = item.get("category", "")
+                            category_pl = item.get("category", "")
+
+                            # Check both English and Polish category names
+                            is_personal = any(
+                                cat in category_en.lower() or cat in category_pl.lower()
+                                for cat in [
+                                    "odzież",
+                                    "kosmetyki",
+                                    "zdrowie",
+                                    "clothes",
+                                    "cosmetics",
+                                    "health",
+                                ]
+                            )
+
+                            if is_personal:
+                                logger.debug(f"Adjusting personal item: {item['name']}")
+                                # Try to get current quantity safely
+                                try:
+                                    current_qty = int(item.get("quantity", 1))
+                                except (ValueError, TypeError):
+                                    logger.warning(
+                                        f"Non-integer quantity for {item['name']}, resetting to 1"
+                                    )
+                                    current_qty = 1
+
+                                # Calculate new quantity
+                                num_people = trip.num_adults
+                                if trip.children_ages:
+                                    num_people += len(trip.children_ages)
+
+                                logger.debug(
+                                    f"Adjusting quantity for {item['name']} from {current_qty} to {current_qty * num_people} for {num_people} people"
+                                )
+                                item["quantity"] = current_qty * num_people
+                        except Exception as e:
+                            logger.error(
+                                f"Error adjusting quantity for {item.get('name', 'Unknown')}: {str(e)}"
+                            )
+            except Exception as e:
+                logger.error(f"Error during quantity adjustment: {str(e)}")
 
             # Add items from special lists if provided
             if special_lists:
-                for special_list in special_lists:
-                    logger.debug(f"Processing special list: {special_list}")
-                    if not hasattr(special_list, "item_associations"):
-                        logger.warning(
-                            f"Special list {special_list} has no item_associations attribute"
-                        )
-                        continue
+                try:
+                    logger.debug(
+                        f"Adding items from {len(special_lists)} special lists"
+                    )
+                    for special_list in special_lists:
+                        logger.debug(f"Processing special list: {special_list.name}")
+                        for item in special_list.items:
+                            try:
+                                # Create a dictionary for the item
+                                special_item = {
+                                    "name": item.name,
+                                    "quantity": item.quantity,
+                                    "category": item.category,
+                                }
 
-                    for item_association in special_list.item_associations:
-                        logger.debug(f"Processing item association: {item_association}")
-                        items.append(
-                            {
-                                "item_id": item_association.item_id,
-                                "name": (
-                                    item_association.item.name
-                                    if item_association.item
-                                    else "Custom Item"
-                                ),
-                                "quantity": item_association.quantity,
-                                "category": (
-                                    item_association.item.category
-                                    if item_association.item
-                                    else None
-                                ),
-                                "weight": (
-                                    item_association.item.weight
-                                    if item_association.item
-                                    else None
-                                ),
-                                "dimensions": (
-                                    item_association.item.dimensions
-                                    if item_association.item
-                                    else None
-                                ),
-                            }
-                        )
+                                if item.weight:
+                                    special_item["weight"] = item.weight
 
-            # Filter out excluded categories
+                                logger.debug(
+                                    f"Adding special item: {special_item['name']}"
+                                )
+                                items.append(special_item)
+                            except Exception as e:
+                                logger.error(f"Error adding special item: {str(e)}")
+                except Exception as e:
+                    logger.error(f"Error processing special lists: {str(e)}")
+
+            # Exclude categories if provided
             if exclude_categories:
-                items = [
-                    item
-                    for item in items
-                    if not item.get("category")
-                    or item["category"] not in exclude_categories
-                ]
+                try:
+                    logger.debug(f"Excluding categories: {exclude_categories}")
+                    original_count = len(items)
+                    items = [
+                        item
+                        for item in items
+                        if item.get("category", "").lower()
+                        not in [cat.lower() for cat in exclude_categories]
+                    ]
+                    logger.debug(
+                        f"Removed {original_count - len(items)} items from excluded categories"
+                    )
+                except Exception as e:
+                    logger.error(f"Error excluding categories: {str(e)}")
 
-            # Adjust quantities based on number of people
-            for item in items:
-                if item.get("category") in ["Clothing", "Toiletries"]:
-                    item["quantity"] *= trip.num_adults
-                    if trip.children_ages:
-                        item["quantity"] += len(trip.children_ages)
-
+            logger.debug(f"Returning {len(items)} items in packing list")
             return items
 
         except Exception as e:
-            logger.error(f"Error generating packing list: {e}", exc_info=True)
-            # Fallback to basic items if AI generation fails
+            logger.error(f"Error generating packing list: {str(e)}")
+            # Return a minimal default list in case of failure
             return [
+                {"name": "Ubrania na zmianę", "quantity": 1, "category": "Odzież"},
                 {
-                    "name": "Toothbrush",
+                    "name": "Szczoteczka do zębów",
                     "quantity": 1,
-                    "category": "Toiletries",
-                    "weight": 0.1,
+                    "category": "Kosmetyki",
                 },
+                {"name": "Dokumenty", "quantity": 1, "category": "Dokumenty"},
                 {
-                    "name": "Passport",
+                    "name": "Ładowarka do telefonu",
                     "quantity": 1,
-                    "category": "Documents",
-                    "weight": 0.1,
-                },
-                {
-                    "name": "Phone Charger",
-                    "quantity": 1,
-                    "category": "Electronics",
-                    "weight": 0.2,
-                },
-                {
-                    "name": "First Aid Kit",
-                    "quantity": 1,
-                    "category": "Health",
-                    "weight": 0.5,
+                    "category": "Elektronika",
                 },
             ]
+
+    @staticmethod
+    def _extract_items_from_text(text: str) -> List[Dict]:
+        """Extract items from malformed JSON or text response."""
+        logger.debug("Attempting to extract items from malformed response")
+        items = []
+
+        try:
+            # Try to find JSON-like objects in the text
+            matches = re.finditer(
+                r'{\s*"name"\s*:\s*"([^"]+)"\s*,\s*"quantity"\s*:\s*(\d+)\s*,\s*"category"\s*:\s*"([^"]+)"',
+                text,
+            )
+
+            for match in matches:
+                try:
+                    name = match.group(1)
+                    quantity = int(match.group(2))
+                    category = match.group(3)
+
+                    logger.debug(f"Extracted item: {name}")
+                    items.append(
+                        {"name": name, "quantity": quantity, "category": category}
+                    )
+                except Exception as e:
+                    logger.error(f"Error extracting item from regex match: {str(e)}")
+
+            logger.debug(f"Extracted {len(items)} items using regex")
+        except Exception as e:
+            logger.error(f"Error extracting items from text: {str(e)}")
+
+        return items

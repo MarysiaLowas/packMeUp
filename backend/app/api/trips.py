@@ -11,7 +11,7 @@ from app.api.dto import (
     GeneratePackingListResponseDTO,
     LuggageModel,
 )
-from app.models import GeneratedList, GeneratedListItem, Trip
+from app.models import GeneratedList, GeneratedListItem
 from app.services.constants import (
     CATERING_OPTIONS,
     AccommodationType,
@@ -118,6 +118,35 @@ class GeneratePackingListCommand(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
+def safe_parse_luggage(luggage_data):
+    """Safely convert luggage data from the database to the DTO format."""
+    if not luggage_data:
+        return None
+
+    # If it's already a list of LuggageModel objects, return it
+    if isinstance(luggage_data, list) and all(
+        isinstance(item, LuggageModel) for item in luggage_data
+    ):
+        return luggage_data
+
+    # Handle case where it's a list of dictionaries
+    if isinstance(luggage_data, list):
+        try:
+            return [LuggageModel.model_validate(item) for item in luggage_data]
+        except Exception:
+            pass
+
+    # Handle case where it's a dictionary
+    if isinstance(luggage_data, dict):
+        try:
+            return [LuggageModel.model_validate(luggage_data)]
+        except Exception:
+            pass
+
+    # If all else fails, return None
+    return None
+
+
 @router.post(
     "",
     response_model=TripDTO,
@@ -170,7 +199,7 @@ class GeneratePackingListCommand(BaseModel):
 )
 async def create_trip(
     command: CreateTripCommand,
-) -> Trip:
+) -> TripDTO:
     """
     Create a new trip with the provided details.
 
@@ -197,18 +226,39 @@ async def create_trip(
             "catering": command.catering,
             "activities": command.activities,
             "available_luggage": (
-                [item.dict() for item in command.available_luggage]
+                [item.model_dump() for item in command.available_luggage]
                 if command.available_luggage
                 else None
             ),
         }
 
-        return await TripService.create_trip(
+        trip = await TripService.create_trip(
             user_id=mock_user_id,
             destination=command.destination,
             duration_days=command.duration_days,
             start_date=command.start_date,
             **trip_data,
+        )
+
+        # Explicit conversion to DTO
+        return TripDTO(
+            id=trip.id,
+            user_id=trip.user_id,
+            destination=trip.destination,
+            start_date=trip.start_date,
+            duration_days=trip.duration_days,
+            num_adults=trip.num_adults,
+            children_ages=trip.children_ages,
+            accommodation=(
+                AccommodationType(trip.accommodation) if trip.accommodation else None
+            ),
+            catering=trip.catering,
+            transport=TransportType(trip.transport) if trip.transport else None,
+            activities=trip.activities,
+            season=SeasonType(trip.season) if trip.season else None,
+            available_luggage=command.available_luggage,
+            created_at=trip.created_at,
+            updated_at=trip.updated_at,
         )
     except Exception as e:
         print(f"Error: {e}")
@@ -330,7 +380,7 @@ async def get_trip(
         description="The ID of the trip to retrieve",
         example="123e4567-e89b-12d3-a456-426614174000",
     ),
-) -> Trip:
+) -> TripDTO:
     """
     Retrieve detailed information about a specific trip.
 
@@ -350,7 +400,27 @@ async def get_trip(
         trip = await TripService.get_trip(trip_id, user_id=mock_user_id)
         if not trip:
             raise HTTPException(status_code=404, detail="Trip not found")
-        return trip
+
+        # Explicit conversion to DTO
+        return TripDTO(
+            id=trip.id,
+            user_id=trip.user_id,
+            destination=trip.destination,
+            start_date=trip.start_date,
+            duration_days=trip.duration_days,
+            num_adults=trip.num_adults,
+            children_ages=trip.children_ages,
+            accommodation=(
+                AccommodationType(trip.accommodation) if trip.accommodation else None
+            ),
+            catering=trip.catering,
+            transport=TransportType(trip.transport) if trip.transport else None,
+            activities=trip.activities,
+            season=SeasonType(trip.season) if trip.season else None,
+            available_luggage=safe_parse_luggage(trip.available_luggage),
+            created_at=trip.created_at,
+            updated_at=trip.updated_at,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -507,7 +577,9 @@ async def get_generated_list(
         if not result:
             raise HTTPException(status_code=404, detail="List not found")
 
-        return GeneratePackingListResponseDTO.from_orm(result)
+        return GeneratePackingListResponseDTO.model_validate(
+            result, from_attributes=True
+        )
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
