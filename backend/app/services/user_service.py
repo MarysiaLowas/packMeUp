@@ -7,7 +7,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from passlib.context import CryptContext
+from passlib.context import CryptContext  # type: ignore
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 

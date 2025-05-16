@@ -8,7 +8,7 @@ from typing import Dict, Optional
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from jose import JWTError, jwt
+from jose import JWTError, jwt  # type: ignore
 from pydantic import BaseModel
 
 from app.models import User

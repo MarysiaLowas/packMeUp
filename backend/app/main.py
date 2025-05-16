@@ -2,7 +2,7 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_sqlalchemy import AsyncDBSessionMiddleware
+from fastapi_sqlalchemy import AsyncDBSessionMiddleware  # type: ignore
 
 from app import settings  # an object to provide global access to a database session
 from app.api import auth

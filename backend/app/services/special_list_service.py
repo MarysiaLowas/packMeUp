@@ -2,7 +2,8 @@ from datetime import datetime
 from typing import List, Optional, Tuple
 from uuid import UUID
 
-from sqlalchemy import select
+from fastapi_sqlalchemy import async_db as db
+from sqlalchemy import Column, ForeignKey, Table, insert, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
@@ -113,8 +114,8 @@ class SpecialListService:
         try:
             # Create new special list using CrudMixin's create method
             created_record = await SpecialList.create(**special_list_data)
-            # Extract id from the result and ensure it's a UUID
-            created_id = created_record[0]
+            # Extract id from the created record
+            created_id = created_record.id
             if isinstance(created_id, str):
                 created_id = UUID(created_id)  # Convert string to UUID if necessary
             # Re-query the created special list using CrudMixin's select method
@@ -239,10 +240,13 @@ class SpecialListService:
             special_list = records[0]
             if special_list.user_id != user_id:
                 raise SpecialListError("Access denied", status_code=403)
-            special_list.name = data.name
-            special_list.category = data.category
-            # Assume special_list.save() commits the changes asynchronously
-            await special_list.save()
+
+            # Update the special list directly using an update statement
+            await SpecialList.merge(
+                ["id"], {"id": list_id, "name": data.name, "category": data.category}
+            )
+
+            # Fetch the updated record
             updated_records = await SpecialList.select(id=list_id)
             return updated_records[0]
         except IntegrityError as e:
@@ -342,12 +346,8 @@ class SpecialListService:
             if not association_records:
                 raise SpecialListError("Item not found in list", status_code=404)
 
-            # Ensure id is a UUID
-            association_id = association_records[0].id
-            if isinstance(association_id, str):
-                association_id = UUID(association_id)
-
-            await SpecialListItem.delete(id=association_id)
+            # Delete the association record directly
+            await SpecialListItem.delete(special_list_id=list_id, item_id=item_id)
         except SpecialListError as se:
             raise se
         except Exception as e:
@@ -373,15 +373,21 @@ class SpecialListService:
             if not association_records:
                 raise SpecialListError("Item not found in list", status_code=404)
 
-            association = association_records[0]
-            association.quantity = data.quantity
-            await association.save()
-            # Ensure id is a UUID
-            association_id = association.id
-            if isinstance(association_id, str):
-                association_id = UUID(association_id)
-            updated_association = (await SpecialListItem.select(id=association_id))[0]
-            return updated_association
+            # Update the association directly
+            await SpecialListItem.merge(
+                ["special_list_id", "item_id"],
+                {
+                    "special_list_id": list_id,
+                    "item_id": item_id,
+                    "quantity": data.quantity,
+                },
+            )
+
+            # Fetch the updated record
+            updated_records = await SpecialListItem.select(
+                special_list_id=list_id, item_id=item_id
+            )
+            return updated_records[0]
         except IntegrityError as e:
             raise SpecialListError(
                 "Failed to update item quantity due to database constraint",
@@ -424,13 +430,23 @@ class SpecialListService:
             if tag in special_list.tags:
                 raise SpecialListError("Tag already exists in list", status_code=409)
 
-            special_list.tags.append(tag)
-            await special_list.save()
-            # Ensure id is a UUID
-            tag_id = tag.id
-            if isinstance(tag_id, str):
-                tag_id = UUID(tag_id)
-            updated_tag_records = await Tag.select(id=tag_id)
+            # Add the tag to the special list using the association table
+            special_list_tags_table = Table(
+                "special_list_tags",
+                SpecialList.metadata,
+                Column("special_list_id", ForeignKey("special_lists.id")),
+                Column("tag_id", ForeignKey("tags.id")),
+            )
+
+            await db.session.execute(
+                insert(special_list_tags_table).values(
+                    {"special_list_id": list_id, "tag_id": tag.id}
+                )
+            )
+            await db.session.commit()
+
+            # Fetch the updated tag
+            updated_tag_records = await Tag.select(id=tag.id)
             return updated_tag_records[0]
         except IntegrityError as e:
             raise SpecialListError(

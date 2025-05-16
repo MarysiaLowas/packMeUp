@@ -164,10 +164,12 @@ Klucze w obiektach JSON muszą być w języku angielskim, a **wartości tekstowe
         if trip.available_luggage:
             prompt += "\nOgraniczenia bagażowe:\n"
             for luggage in trip.available_luggage:
-                if luggage.get("max_weight"):
-                    prompt += f"- Maksymalna waga: {luggage['max_weight']} kg\n"
-                if luggage.get("dimensions"):
-                    prompt += f"- Wymiary: {luggage['dimensions']}\n"
+                # Ensure luggage is a dictionary before attempting to access its keys
+                if isinstance(luggage, dict):
+                    if "max_weight" in luggage:
+                        prompt += f"- Maksymalna waga: {luggage['max_weight']} kg\n"
+                    if "dimensions" in luggage:
+                        prompt += f"- Wymiary: {luggage['dimensions']}\n"
 
         # Set user message
         ai_service.openrouter.set_user_message(prompt)

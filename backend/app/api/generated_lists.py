@@ -65,7 +65,7 @@ async def update_list_item(
             raise HTTPException(status_code=404, detail="Item not found")
 
         # Update the item
-        await item.update(is_packed=is_packed)
+        await GeneratedListItem.merge(["id"], {"id": item_id, "is_packed": is_packed})
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

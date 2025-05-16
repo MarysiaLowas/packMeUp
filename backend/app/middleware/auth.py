@@ -2,7 +2,7 @@ from typing import Annotated, Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
+from jose import JWTError  # type: ignore
 
 from app.models import User
 from app.services.auth_service import AuthService

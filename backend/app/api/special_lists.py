@@ -8,6 +8,7 @@ from app.schemas.special_lists import (
     AddSpecialListItemCommand,
     AddTagCommand,
     CreateSpecialListCommand,
+    ItemDTO,
     PaginatedSpecialListResponse,
     SortField,
     SortOrder,
@@ -39,9 +40,10 @@ async def create_special_list(data: CreateSpecialListCommand) -> SpecialListDTO:
     """Create a new special list."""
     mock_user_id = UUID("12345678-1234-5678-1234-567812345678")
     try:
-        return await SpecialListService.create_special_list(
+        special_list = await SpecialListService.create_special_list(
             user_id=mock_user_id, data=data
         )
+        return SpecialListDTO.from_orm(special_list)
     except SpecialListError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
@@ -156,10 +158,11 @@ async def add_item_to_list(
         special_list_item = await SpecialListService.add_item_to_list(
             list_id, user_id=mock_user_id, data=data
         )
+        item_dto = ItemDTO.from_orm(special_list_item.item)
         return SpecialListItemWithDetailsDTO(
             itemId=special_list_item.item_id,
             quantity=special_list_item.quantity,
-            item=special_list_item.item,
+            item=item_dto,
         )
     except SpecialListError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -197,10 +200,11 @@ async def update_list_item_quantity(
         special_list_item = await SpecialListService.update_list_item_quantity(
             list_id, item_id, user_id=mock_user_id, data=data
         )
+        item_dto = ItemDTO.from_orm(special_list_item.item)
         return SpecialListItemWithDetailsDTO(
             itemId=special_list_item.item_id,
             quantity=special_list_item.quantity,
-            item=special_list_item.item,
+            item=item_dto,
         )
     except SpecialListError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
